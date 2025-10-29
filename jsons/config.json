@@ -1,0 +1,18 @@
+{
+    "tevel4": {
+        "id": "14",
+        "beacon_json": "tevels_beacon.json"
+    },
+    "tevel6": {
+        "id": "16",
+        "beacon_json": "tevels_beacon.json"
+    },
+    "tevel1": {
+        "id": "11",
+        "beacon_json": "tevels_beacon.json"
+    },
+    "tevel9": {
+        "id": "19",
+        "beacon_json": "tevels_beacon.json"
+    }
+}

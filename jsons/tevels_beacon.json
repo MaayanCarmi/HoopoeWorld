@@ -1,0 +1,260 @@
+{
+    "settings": {
+        "isDefaultLittleEndian": false
+    },
+    "telemetry": {
+        "serviceTypes": [
+            {
+                "name": "TRXVU",
+                "id": 0,
+                "serviceSubTypes": [
+                    {
+                        "name": "beacon",
+                        "id": 1,
+                        "params": [
+                            {
+                                "name": "voltBattery",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "volt_5V",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "volt_3V3",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "charging_power",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "consumed_power",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "electric_current",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "current_3V3",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "current_5V",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "bat_temp",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "solar_panels0",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "Solar Panels"
+                            },
+                            {
+                                "name": "solar_panels1",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "Solar Panels"
+                            },
+                            {
+                                "name": "solar_panels2",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "Solar Panels"
+                            },
+                            {
+                                "name": "solar_panels3",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "Solar Panels"
+                            },
+                            {
+                                "name": "solar_panels4",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "Solar Panels"
+                            },
+                            {
+                                "name": "solar_panels5",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "Solar Panels"
+                            },
+                            {
+                                "name": "sat_time",
+                                "type": "datetime",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "free_memory",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "corrupt_bytes",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "total_memory",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "used_bytes",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "lastFS_error",
+                                "type": "int32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "number_of_resets",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "sat_uptime",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "num_of_cmd_resets",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "OBC"
+                            },
+                            {
+                                "name": "sel_counter",
+                                "type": "int32",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "seu_counter",
+                                "type": "int32",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "sensor_one_radfet",
+                                "type": "int32",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "sensor_two_radfet",
+                                "type": "int32",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "radfet_temp",
+                                "type": "double",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "last_radfet_read_time",
+                                "type": "datetime",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "power_payload",
+                                "type": "int16",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "payload_kill_flag",
+                                "type": "uint32",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "eps_state",
+                                "type": "byte",
+                                "subSystem": "EPS"
+                            },
+                            {
+                                "name": "change_in_mode",
+                                "type": "int32",
+                                "isLittleEndian": true,
+                                "subSystem": "Payload"
+                            },
+                            {
+                                "name": "temp_pa",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "TRXVU"
+                            },
+                            {
+                                "name": "temp_board",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "TRXVU"
+                            },
+                            {
+                                "name": "reflected_power",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "TRXVU"
+                            },
+                            {
+                                "name": "forward_power",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "TRXVU"
+                            },
+                            {
+                                "name": "doppler",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "TRXVU"
+                            },
+                            {
+                                "name": "rssi",
+                                "type": "float",
+                                "isLittleEndian": true,
+                                "subSystem": "TRXVU"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
