@@ -6,7 +6,17 @@ cursor_obj = connection_sql.cursor()
 #todo: need to get from the json and make according to that. the json will be used to more stuff.
 # here I talk only on the config json that will call the others. it's not the decryption but the
 # creation of the table.
-
+types = {
+    "uint": "INT",
+    "int": "",
+    "ushort": "",
+    "short": "",
+    "unixtime": "",
+    "float": "",
+    "byte": "",
+    "string": "",
+    "double": ""
+}
 # Creating table
 table = """ CREATE TABLE IF NOT EXISTS UsersTable (
             id INT PRIMARY KEY,
