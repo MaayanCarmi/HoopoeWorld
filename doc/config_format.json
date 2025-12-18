@@ -1,0 +1,16 @@
+{
+    "{satName}": {
+        "satName": "{sat_callsign}",
+        "id": "{dec number, id from protocol}",
+        "tableName": "{what the sql table will be called}",
+        "beacon_json": "{the json of the data/beacon format}",
+        "primeKey": "{what is the prime key of the table}"
+    },
+    "{satName2} can add as much as you will like": {
+        "satName": "{sat_callsign}",
+        "id": "{dec number, id from protocol}",
+        "tableName": "{what the sql table will be called}",
+        "beacon_json": "{the json of the data/beacon format}",
+        "primeKey": "{what is the prime key of the table}"
+    }
+}

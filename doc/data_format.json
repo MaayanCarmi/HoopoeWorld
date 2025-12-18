@@ -1,0 +1,24 @@
+{
+    "settings": {
+        "isDefaultLittleEndian": true,
+        "opcode": "{opcode in hex (type + subtype}"
+    },
+    "subType":
+    {
+        "name": "{name of function}",
+        "params": [
+            {
+                "name": "{name of param}",
+                "type": "{type of param}",
+                "subSystem": "{if we have a system it is about} - from here included not a must",
+                "enum": "{if the type is byte and want to display enum}",
+                "format": "{in case we have changes for the param (x). can do +, -, *, /, **}",
+                "isBigEndian": false
+            },
+            {
+                "name": "{second param, going according to the order in packet} - and can do more params",
+                "type": "{param type}"
+            }
+        ]
+    }
+}
