@@ -1,18 +1,31 @@
 {
     "tevel4": {
+        "satName": "TVL2-4",
         "id": "14",
-        "beacon_json": "tevels_beacon.json"
+        "tableName": "Tevel14Data",
+        "beacon_json": "tevels_beacon.json",
+        "primeKey": "sat_time"
     },
     "tevel6": {
+        "satName": "TVL2-6",        
         "id": "16",
-        "beacon_json": "tevels_beacon.json"
+        "tableName": "Tevel16Data",
+        "beacon_json": "tevels_beacon.json",
+        "primeKey": "sat_time"
+
     },
     "tevel1": {
+        "satName": "TVL2-1",
         "id": "11",
-        "beacon_json": "tevels_beacon.json"
+        "tableName": "Tevel11Data",
+        "beacon_json": "tevels_beacon.json",
+        "primeKey": "sat_time"
     },
     "tevel9": {
+        "satName": "TVL2-9",
         "id": "19",
-        "beacon_json": "tevels_beacon.json"
+        "tableName": "Tevel19Data",
+        "beacon_json": "tevels_beacon.json",
+        "primeKey": "sat_time"
     }
 }
