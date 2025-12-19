@@ -1,0 +1,108 @@
+﻿body {
+    background-image: url('..\..\Images\5.png');
+    display: flow-root;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.item {
+    width: 20%;
+    height: 60px;
+    text-align: center;
+}
+
+.header {
+    background-color: midnightblue;
+    color: azure;
+    position: fixed;
+    height: 70px;
+    top: 0;
+    left: 0;
+}
+
+.selectOption {
+    font-family: 'Times New Roman';
+    color: black;
+    background-color: aliceblue;
+    height: 50px;
+    border-radius: 8px;
+    align-self: center;
+    margin: 10px;
+    padding: 5px;
+    font-size: x-large;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.icon {
+    align-self: center;
+
+}
+
+.title {
+    flex-grow: 1;
+    font-size: 40px;
+    align-self: center;
+    color: aliceblue;
+    text-align: center;
+    font-family: 'Levenim MT'
+}
+
+.clock {
+    align-content: center;
+    color: white;
+    font-family: 'Times New Roman';
+    height: 50px;
+    align-self: center;
+    margin: 10px;
+    padding: 5px;
+    font-size: x-large;
+}
+
+.containerPacket {
+    font-family: 'Times New Roman';
+    color: black;
+    background-color: aliceblue;
+    width: 90%;
+    border-radius: 8px;
+    align-content: center;
+    align-self: center;
+    margin-top: 1%;
+    margin-left: 5%;
+    padding: 5px;
+    font-size: x-large;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.divRaw {
+    margin: 1%;
+    background-color: white;
+    font-family: 'Times New Roman';
+    color: black;
+    align-content: center;
+    align-self: center;
+    font-size: large;
+    overflow-wrap: break-word;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.containerSub {
+    font-family: 'Times New Roman';
+    color: black;
+    background-color: white;
+    /*in the real project the height will need to be change according to the size of the packet, according to which have the most lines (and add a line for safety).*/
+    width: 17%;
+    align-self: center;
+    margin: 1%;
+    padding: 5px;
+    font-size: large;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.titleSub {
+    text-align: center;
+    font-weight: 600;
+}

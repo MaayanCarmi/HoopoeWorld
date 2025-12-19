@@ -1,0 +1,238 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>HoopoeWorld</title>
+    <link rel="icon" type="image/x-icon" href="..\..\Images\logo2v.png" />
+    <link rel="stylesheet" href="WebpageStyle.css" />
+</head>
+<body style="background-color: black">
+    <script src="clock.js"></script>
+    <div class="container header">
+        <select name="chooseSat" class="item selectOption">
+            <option> Choose satellite </option>
+            <option>Tevel 11</option>
+            <option>Tevel 14</option>
+            <option>Tevel 16</option>
+        </select>
+        <div class="container title">
+            <img src="..\..\Images\logo2v.png" height="100" class="icon" />
+            <div class="icon title">HoopoeWorld</div>
+            <img src="..\..\Images\logo2v.png" height="100" style="align-self: center; transform: scaleX(-1);" />
+
+        </div>
+        <div class="item clock" id="clock"></div>
+        <!--need to make it access to server for him to put the correct stuff.-->
+        <!--need to make it connect to server. and also most of those stuff will be changed by the server. and not be hardcoded-->
+    </div>
+    <div>
+        <div class="containerPacket" style="margin-top: 6%">
+            <div class="divRaw">
+                <div style="text-align: center"><u><b>Hex raw:</b></u></div>
+                0000000B00018D00CA1E8013F80C7EFF660DE3FF7D0000000A00000ABD410050384100DC664100611A42007EBA410004474135F02F6900C01B470000000000A0F17700E0D530000000001200000074CF0F0000000000FFFFFFFFFFFFFFFF2BCEC822D9E483220400000000CA3640601D20690000FFFFFFFF000B00000050613A425671F941F7B17E4051F82444B2BADDC50000DDC2
+            </div>
+            <div class="container">
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">EPS</div>
+                    <hr />
+                    <u>voltBattery:</u> 7882<br />
+                    <u>volt_5V:</u> 4992<br />
+                    <u>volt_3V3:</u> 3320<br />
+                    <u>charging_power:</u> -130<br />
+                    <u>consumed_power:</u> 3430<br />
+                    <u>electric_current:</u> -29<br />
+                    <u>current_3V3:</u> 125<br />
+                    <u>current_5V:</u> 0<br />
+                    <u>bat_temp:</u> 10<br />
+                    <u>eps_state:</u> 0
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">OBC</div>
+                    <hr />
+                    <u>sat_time:</u> 03/12/2025 8:09 <br />
+                    <u>free_memory:</u> 1193000960<br />
+                    <u>corrupt_bytes:</u> 0<br />
+                    <u>total_memory:</u> 2012323840<br />
+                    <u>used_bytes:</u> 819322880<br />
+                    <u>lastFS_error:</u> 0<br />
+                    <u>number_of_resets:</u> 18<br />
+                    <u>sat_uptime:</u> 1036148 <br />
+                    <u>num_of_cmd_resets:</u> 0<br />
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">Solar Panels</div>
+                    <hr />
+                    <u>solar_panels0:</u> 23.62988281<br />
+                    <u>solar_panels1:</u> 11.51953125<br />
+                    <u>solar_panels2:</u> 14.42871094<br />
+                    <u>solar_panels3:</u> 38.59472656<br />
+                    <u>solar_panels4:</u> 23.31152344<br />
+                    <u>solar_panels5:</u> 12.43847656
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">Payload</div>
+                    <hr />
+                    <u>sel_counter:</u> -1<br />
+                    <u>seu_counter:</u> -1<br />
+                    <u>sensor_one_radfet:</u> 583585323<br />
+                    <u>sensor_two_radfet:</u> 579069145<br />
+                    <u>radfet_temp:</u> 22.7890625<br />
+                    <u>last_radfet_read_time:</u> 21/11/2025  8:05:52<br />
+                    <u>power_payload:</u> 0<br />
+                    <u>payload_kill_flag:</u> 4294967295<br />
+                    <u>change_in_mode:</u> 11
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">TRXVU</div>
+                    <hr />
+                    <u>temp_pa:</u> 46.59503174<br />
+                    <u>temp_board:</u> 31.18033981<br />
+                    <u>reflected_power:</u> 3.979612112<br />
+                    <u>forward_power:</u> 659.8799438<br />
+                    <u>doppler:</u> -7095.336914<br />
+                    <u>rssi:</u> -110.5
+                </div>
+
+            </div>
+        </div>
+        <div class="containerPacket">
+            <div class="divRaw">
+                <div style="text-align: center"><u><b>Hex raw:</b></u></div>
+                0000000B00018D00CA1E8013F80C7EFF660DE3FF7D0000000A00000ABD410050384100DC664100611A42007EBA410004474135F02F6900C01B470000000000A0F17700E0D530000000001200000074CF0F0000000000FFFFFFFFFFFFFFFF2BCEC822D9E483220400000000CA3640601D20690000FFFFFFFF000B00000050613A425671F941F7B17E4051F82444B2BADDC50000DDC2
+            </div>
+            <div class="container">
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">EPS</div>
+                    <hr />
+                    <u>voltBattery:</u> 7882<br />
+                    <u>volt_5V:</u> 4992<br />
+                    <u>volt_3V3:</u> 3320<br />
+                    <u>charging_power:</u> -130<br />
+                    <u>consumed_power:</u> 3430<br />
+                    <u>electric_current:</u> -29<br />
+                    <u>current_3V3:</u> 125<br />
+                    <u>current_5V:</u> 0<br />
+                    <u>bat_temp:</u> 10<br />
+                    <u>eps_state:</u> 0
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">OBC</div>
+                    <hr />
+                    <u>sat_time:</u> 03/12/2025 8:09 <br />
+                    <u>free_memory:</u> 1193000960<br />
+                    <u>corrupt_bytes:</u> 0<br />
+                    <u>total_memory:</u> 2012323840<br />
+                    <u>used_bytes:</u> 819322880<br />
+                    <u>lastFS_error:</u> 0<br />
+                    <u>number_of_resets:</u> 18<br />
+                    <u>sat_uptime:</u> 1036148 <br />
+                    <u>num_of_cmd_resets:</u> 0<br />
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">Solar Panels</div>
+                    <hr />
+                    <u>solar_panels0:</u> 23.62988281<br />
+                    <u>solar_panels1:</u> 11.51953125<br />
+                    <u>solar_panels2:</u> 14.42871094<br />
+                    <u>solar_panels3:</u> 38.59472656<br />
+                    <u>solar_panels4:</u> 23.31152344<br />
+                    <u>solar_panels5:</u> 12.43847656
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">Payload</div>
+                    <hr />
+                    <u>sel_counter:</u> -1<br />
+                    <u>seu_counter:</u> -1<br />
+                    <u>sensor_one_radfet:</u> 583585323<br />
+                    <u>sensor_two_radfet:</u> 579069145<br />
+                    <u>radfet_temp:</u> 22.7890625<br />
+                    <u>last_radfet_read_time:</u> 21/11/2025  8:05:52<br />
+                    <u>power_payload:</u> 0<br />
+                    <u>payload_kill_flag:</u> 4294967295<br />
+                    <u>change_in_mode:</u> 11
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">TRXVU</div>
+                    <hr />
+                    <u>temp_pa:</u> 46.59503174<br />
+                    <u>temp_board:</u> 31.18033981<br />
+                    <u>reflected_power:</u> 3.979612112<br />
+                    <u>forward_power:</u> 659.8799438<br />
+                    <u>doppler:</u> -7095.336914<br />
+                    <u>rssi:</u> -110.5
+                </div>
+            </div>
+        </div>
+        <div class="containerPacket">
+            <div class="divRaw">
+                <div style="text-align: center"><u><b>Hex raw:</b></u></div>
+                0000000B00018D00CA1E8013F80C7EFF660DE3FF7D0000000A00000ABD410050384100DC664100611A42007EBA410004474135F02F6900C01B470000000000A0F17700E0D530000000001200000074CF0F0000000000FFFFFFFFFFFFFFFF2BCEC822D9E483220400000000CA3640601D20690000FFFFFFFF000B00000050613A425671F941F7B17E4051F82444B2BADDC50000DDC2
+            </div>
+            <div class="container">
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">EPS</div>
+                    <hr />
+                    <u>voltBattery:</u> 7882<br />
+                    <u>volt_5V:</u> 4992<br />
+                    <u>volt_3V3:</u> 3320<br />
+                    <u>charging_power:</u> -130<br />
+                    <u>consumed_power:</u> 3430<br />
+                    <u>electric_current:</u> -29<br />
+                    <u>current_3V3:</u> 125<br />
+                    <u>current_5V:</u> 0<br />
+                    <u>bat_temp:</u> 10<br />
+                    <u>eps_state:</u> 0
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">OBC</div>
+                    <hr />
+                    <u>sat_time:</u> 03/12/2025 8:09 <br />
+                    <u>free_memory:</u> 1193000960<br />
+                    <u>corrupt_bytes:</u> 0<br />
+                    <u>total_memory:</u> 2012323840<br />
+                    <u>used_bytes:</u> 819322880<br />
+                    <u>lastFS_error:</u> 0<br />
+                    <u>number_of_resets:</u> 18<br />
+                    <u>sat_uptime:</u> 1036148 <br />
+                    <u>num_of_cmd_resets:</u> 0<br />
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">Solar Panels</div>
+                    <hr />
+                    <u>solar_panels0:</u> 23.62988281<br />
+                    <u>solar_panels1:</u> 11.51953125<br />
+                    <u>solar_panels2:</u> 14.42871094<br />
+                    <u>solar_panels3:</u> 38.59472656<br />
+                    <u>solar_panels4:</u> 23.31152344<br />
+                    <u>solar_panels5:</u> 12.43847656
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">Payload</div>
+                    <hr />
+                    <u>sel_counter:</u> -1<br />
+                    <u>seu_counter:</u> -1<br />
+                    <u>sensor_one_radfet:</u> 583585323<br />
+                    <u>sensor_two_radfet:</u> 579069145<br />
+                    <u>radfet_temp:</u> 22.7890625<br />
+                    <u>last_radfet_read_time:</u> 21/11/2025  8:05:52<br />
+                    <u>power_payload:</u> 0<br />
+                    <u>payload_kill_flag:</u> 4294967295<br />
+                    <u>change_in_mode:</u> 11
+                </div>
+                <div class="containerSub" style="height: 250px;">
+                    <div class="titleSub">TRXVU</div>
+                    <hr />
+                    <u>temp_pa:</u> 46.59503174<br />
+                    <u>temp_board:</u> 31.18033981<br />
+                    <u>reflected_power:</u> 3.979612112<br />
+                    <u>forward_power:</u> 659.8799438<br />
+                    <u>doppler:</u> -7095.336914<br />
+                    <u>rssi:</u> -110.5
+                </div>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
