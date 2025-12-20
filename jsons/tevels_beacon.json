@@ -171,7 +171,7 @@
                 "name": "eps_state",
                 "type": "byte",
                 "enum": {
-                    "0": "op",
+                    "0": "operational",
                     "1": "cruise",
                     "2": "powerSafeMode"
                 },

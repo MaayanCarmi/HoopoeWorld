@@ -12,7 +12,7 @@
                 "type": "{type of param}",
                 "subSystem": "{if we have a system it is about} - from here included not a must",
                 "enum": "{if the type is byte and want to display enum}",
-                "format": "{in case we have changes for the param (x). can do +, -, *, /, **}",
+                "format": "{in case we have changes for the param (x). can do +, -, *, /, ^ (for power)}",
                 "isBigEndian": false
             },
             {
