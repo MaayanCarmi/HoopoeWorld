@@ -5,6 +5,7 @@ connection_sql = sqlite3.connect("../data/SatDatabase.db")
 cursor_obj = connection_sql.cursor()
 
 #right now I will make it for the format we created in our program. If I have more time, I will change it to be more general.
+# add param to the list. remember you will need to create a new table if you change it (take the raws and continue from there).
 
 
 types = {
@@ -27,6 +28,7 @@ def type_of_param(param):
     """
     try:
         if param["type"] == "byte":
+            # enum need text because we will do the decoding but normal will need 1 byte
             if "enum" in param.keys(): return types["byte"][1]
             return types["byte"][0]
         return types[param["type"]]
@@ -61,6 +63,7 @@ def make_params_for_table(format_file, prime_key):
         except KeyError:
             print("don't have the main things in the define of the parameter. \n(not knowing which. need to check were you don't have name or type)")
             raise TypeError("CantGetParams")
+        #add parameter to the string according to how it will look in the SQL creation. including primary key.
         params.append(f"{param['name']} {type_of_param(param) + " PRIMARY KEY" if param['name'] == prime_key else type_of_param(param)}")
         if param['name'] == prime_key and param["type"] != "unixtime": print("know that the primary key you chose is not time so it may cause problems later")
     return " NOT NULL,\n".join(params + ["raw TEXT NOT NULL"])
@@ -74,6 +77,7 @@ def main():
             data = json.load(file)
     except OSError: print("you don't have the config file or it's not in the right folder.")
     for x in data:
+        #for each sat in data
         try: table_name = data[x]["tableName"]
         except KeyError:
             print("you don't have table name tag in config.")
