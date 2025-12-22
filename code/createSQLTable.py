@@ -25,10 +25,15 @@ def type_of_param(param):
     :param param: the dict from the json.
     :return: type of param that will be written int the SQL.
     """
-    if param["type"] == "byte":
-        if "enum" in param.keys(): return types["byte"][1]
-        return types["byte"][0]
-    return types[param["type"]]
+    try:
+        if param["type"] == "byte":
+            if "enum" in param.keys(): return types["byte"][1]
+            return types["byte"][0]
+        return types[param["type"]]
+    except KeyError or Exception:
+        print("not have type field or an unknown type. can see in documents the correct types.")
+        raise TypeError("CantGetParams")
+
 
 def make_params_for_table(format_file, prime_key):
     """
@@ -39,26 +44,50 @@ def make_params_for_table(format_file, prime_key):
     :return: string of the params for the creation of the SQL.
     """
     params = []
-    with open(format_file, 'r') as file:
-        data = json.load(file)
-    data = data["subType"]["params"]
+    try:
+        with open(format_file, 'r') as file:
+            data = json.load(file)
+    except FileNotFoundError or OSError:
+        print("an unknown file. (maybe not in the correct folder. need to be in jsons.")
+        raise TypeError("CantGetParams")
+    try:
+        data = data["subType"]["params"]
+    except KeyError:
+        print("don't have the needed main tags (subtype or params)")
+        raise TypeError("CantGetParams")
     for param in data: #maybe check if there is a way we will write in little endian
-        if param["type"] == "byte" and "enum" in param.keys(): pass #need to add here something on the enum.
+        try:
+            if param["type"] == "byte" and "enum" in param.keys(): pass #need to add here something on the enum.
+        except KeyError:
+            print("don't have the main things in the define of the parameter. \n(not knowing which. need to check were you don't have name or type)")
+            raise TypeError("CantGetParams")
         params.append(f"{param['name']} {type_of_param(param) + " PRIMARY KEY" if param['name'] == prime_key else type_of_param(param)}")
+        if param['name'] == prime_key and param["type"] != "unixtime": print("know that the primary key you chose is not time so it may cause problems later")
     return " NOT NULL,\n".join(params + ["raw TEXT NOT NULL"])
 
 def main():
     """
     going over each sat in config and create the table for who is not already there.
     """
-    with open(r'..\jsons\config.json', 'r') as file:
-        data = json.load(file)
+    try:
+        with open(r'..\jsons\config.json', 'r') as file:
+            data = json.load(file)
+    except OSError: print("you don't have the config file or it's not in the right folder.")
     for x in data:
-        table_name = data[x]["tableName"]
-        params = make_params_for_table(rf"..\jsons\{data[x]['beacon_json']}", data[x]["primeKey"])
+        try: table_name = data[x]["tableName"]
+        except KeyError:
+            print("you don't have table name tag in config.")
+            break
+        try:
+            params = make_params_for_table(rf"..\jsons\{data[x]['beacon_json']}", data[x]["primeKey"])
+        except KeyError or Exception:
+            print("you have a problem in params or don't have a necessary in config.")
+            break
         sql_query = f"CREATE TABLE IF NOT EXISTS {table_name} (\n{params});"
-        cursor_obj.execute(sql_query)
-        print(f"Table, {table_name}, is Ready")
+        try:
+            cursor_obj.execute(sql_query)
+            print(f"Table, {table_name}, is Ready")
+        except Exception as e: print(f"had an exception '{e}' in creating table.")
 
     connection_sql.close()
 
