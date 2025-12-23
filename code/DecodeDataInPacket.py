@@ -3,6 +3,14 @@ import json
 from struct import unpack
 from datetime import datetime
 
+"""
+todo: I will do here everything that is reading the jsons and etc. there is stuff that I will need
+them to be in main server but general stuff, making the packet, getting it and cleaning it up will
+be here. It's not that much but I want the loop that read from the SatNogs and put in SQL to be here.
+And also the creation because I want it to be arrange. 
+
+Need to check how to take from satNogs and according to that I will know more.
+"""
 SIZE_IN_BYTES = {
     "uint": 4, # we read 4 and then change to text.
     "int": 4,
@@ -34,6 +42,13 @@ def decoded_param(data_bytes, data_type, is_big):
     if data_type in ["int", "unixtime"]: return unpack(('>' if is_big else '<') + "i", data_bytes)[0]
 
 def decode_data_for_sql(data, json_params, default_endian):
+    """
+    getting parameters and by them making the params that needed to create the INSERT to the SQL.
+    :param data: Hex that is only from the data section of Ax25
+    :param json_params: according to what we will learn getting the params and the type of each.
+    :param default_endian: if big or little.
+    :return:
+    """
     i = 8*2 #where in the packet we start. (where the params are) again it's only for our sats.
     decode_to_sql = [] #in hope
     bytes_from_data = 0

@@ -6,7 +6,6 @@
 .container {
     width: 100%;
     display: flex;
-    justify-content: center;
 }
 
 .item {
@@ -68,8 +67,6 @@
     background-color: aliceblue;
     width: 90%;
     border-radius: 8px;
-    align-content: center;
-    align-self: center;
     margin-top: 1%;
     margin-left: 5%;
     padding: 5px;
@@ -93,9 +90,7 @@
     font-family: 'Times New Roman';
     color: black;
     background-color: white;
-    /*in the real project the height will need to be change according to the size of the packet, according to which have the most lines (and add a line for safety).*/
     width: 17%;
-    align-self: center;
     margin: 1%;
     padding: 5px;
     font-size: large;
