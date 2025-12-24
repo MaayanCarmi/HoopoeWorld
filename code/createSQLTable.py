@@ -37,7 +37,7 @@ def type_of_param(param):
         raise TypeError("CantGetParams")
 
 
-def make_params_for_table(format_file, prime_key):
+def make_params_for_table(format_file):
     """
     take from the file the json and because we have only on type of subtype in this program
     we take all the params and make them fit to add to the creation of the json file.
@@ -53,9 +53,10 @@ def make_params_for_table(format_file, prime_key):
         print("an unknown file. (maybe not in the correct folder. need to be in jsons.")
         raise TypeError("CantGetParams")
     try:
+        prime_key = data["settings"]["prime_key"]
         data = data["subType"]["params"]
     except KeyError:
-        print("don't have the needed main tags (subtype or params)")
+        print("don't have the needed main tags (settings, prime_key, subtype or params)")
         raise TypeError("CantGetParams")
     for param in data: #maybe check if there is a way we will write in little endian
         try:
@@ -83,7 +84,7 @@ def main():
             print("you don't have table name tag in config.")
             break
         try:
-            params = make_params_for_table(rf"..\jsons\{data[x]['beacon_json']}", data[x]["primeKey"])
+            params = make_params_for_table(rf"..\jsons\{data[x]['beacon_json']}")
         except KeyError or Exception:
             print("you have a problem in params or don't have a necessary in config.")
             break

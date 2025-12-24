@@ -1,7 +1,8 @@
 {
     "settings": {
         "isDefaultLittleEndian": true,
-        "opcode": "0x0001"
+        "opcode": "0x0001",
+        "prime_key": "sat_time"
     },
     "subType":
     {
