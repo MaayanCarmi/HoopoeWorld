@@ -1,10 +1,21 @@
 __author__ = 'Maayan'
-import json, threading, sqlite3
+import json, threading, sqlite3, requests
 from struct import unpack
 from datetime import datetime
 from createSQLTable import create_tables
 connection_sql = sqlite3.connect("../data/SatDatabase.db")
 connection_sql.row_factory = sqlite3.Row
+
+def get_norad_id(sats_name):
+    norad_id = []
+    url = f"https://db.satnogs.org/api/satellites/?search&format=json"
+    response = requests.get(url)
+    data = response.json()
+    for sat in data:
+        if sat['name'] in sats_name:
+            norad_id.append(sat['norad_cat_id'])
+    return norad_id
+
 def make_dicts_according_to_config():
     try:
         with open(r'..\jsons\config.json', 'r') as file:
@@ -14,12 +25,14 @@ def make_dicts_according_to_config():
         raise TypeError("Can't make it work, need change")
     sats = {}
     jsons = {}
+    sat_ids = []
     for x in data:
         #for each sat in data
         try:
             table_name = data[x]["tableName"]
             callsign = data[x]["callsign"]
             format_json = data[x]['beacon_json']
+            sat_ids.append(data[x]["satnogs_name"]) #here need to put from the chat the ids.
             sats[x] = {"table_name": table_name, "callsign": callsign,
                        "json": format_json, "threadLock": threading.Lock(),
                        "cursor": connection_sql.cursor()}
@@ -37,7 +50,12 @@ def make_dicts_according_to_config():
         except OSError:
             print("you don't have this file in the folder.")
             raise TypeError("Can't make it work, need change")
-    return sats, jsons
+    try:
+        sat_ids = get_norad_id(sat_ids)
+    except Exception as e:
+        print(f"had a problem: {e}")
+        raise TypeError("Can't make it work, need change")
+    return sats, jsons, sat_ids
 def jsons_for_html(json_format):
     """
     take from the json the needed params and make from them the subSystem it's from.
@@ -76,7 +94,7 @@ def jsons_for_html(json_format):
                 counter["General"] = counter["General"] + 1 if "General" in counter.keys() else 1
         jsons[x]["time_param"] = are_unix #because I will need to change it to normal after.
     return jsons
-SATELLITES, JSONS = make_dicts_according_to_config()
+SATELLITES, JSONS, SatIds = make_dicts_according_to_config()
 try:
     JSONS_FOR_HTML = jsons_for_html(JSONS)
 except KeyError or Exception:
