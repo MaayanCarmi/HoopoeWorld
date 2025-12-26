@@ -69,7 +69,7 @@ def make_params_for_table(format_file):
         if param['name'] == prime_key and param["type"] != "unixtime": print("know that the primary key you chose is not time so it may cause problems later")
     return " NOT NULL,\n".join(params + ["raw TEXT NOT NULL"])
 
-def main():
+def create_tables():
     """
     going over each sat in config and create the table for who is not already there.
     """
@@ -95,6 +95,9 @@ def main():
         except Exception as e: print(f"had an exception '{e}' in creating table.")
 
     connection_sql.close()
+
+def main():
+    create_tables()
 
 if __name__ == "__main__":
     main()

@@ -2,6 +2,7 @@ __author__ = 'Maayan'
 import json, threading, sqlite3
 from struct import unpack
 from datetime import datetime
+from createSQLTable import create_tables
 connection_sql = sqlite3.connect("../data/SatDatabase.db")
 connection_sql.row_factory = sqlite3.Row
 def make_dicts_according_to_config():
@@ -76,19 +77,28 @@ def jsons_for_html(json_format):
         jsons[x]["time_param"] = are_unix #because I will need to change it to normal after.
     return jsons
 SATELLITES, JSONS = make_dicts_according_to_config()
-JSONS_FOR_HTML = jsons_for_html(JSONS)
+try:
+    JSONS_FOR_HTML = jsons_for_html(JSONS)
+except KeyError or Exception:
+    print("you have a problem in one of the normal jsons, fix it (it was fine while the table created first)")
+    raise TypeError("problem in json")
 
+def create_options():
+    ret = ""
+    for sat in SATELLITES:
+        ret += f"<option>{sat}</option>\n\t\t\t"
+    return ret
 
-
-def make_for_html(sat: dict, last_date, top):
+def make_for_html(sat_name, last_date, top):
     """
     take from SQL and put it in the format for the html. it's added to what I already have.
-    :param sat: name of sat as written in SATELLITES
+    :param sat_name: name of sat as written in SATELLITES
     :param last_date: in time unix. say from where I need to take. (as time come)
     :param top: is for the top of the page or for the bottom. according to that I know if I gave the min I have or the max
     :return: build for html, min_date, max_date <- know what to take according to top or bottom.
     """
     #last date is in unix format. (int)
+    sat: dict = SATELLITES[sat_name]
     sql_query = f"SELECT * FROM {sat['tableName']} WHERE {JSONS_FOR_HTML[sat['format_json']]['primaryKey']} {'>' if top else '<'} {last_date} ORDER BY {JSONS_FOR_HTML[sat['format_json']]['primaryKey']} DESC LIMIT 25"
     with sat["threadLock"]:
         sat["cursor"].execute(sql_query)
@@ -129,11 +139,6 @@ todo: I will do here everything that is reading the jsons and etc. there is stuf
 them to be in main server but general stuff, making the packet, getting it and cleaning it up will
 be here. It's not that much but I want the loop that read from the SatNogs and put in SQL to be here.
 And also the creation because I want it to be arrange. 
-
-        elif param["type"] == "unixtime":
-            to_append = doing_format(to_append, "unixtime", None)
-    if data_type == "unixtime":
-        return datetime.fromtimestamp(data).strftime("%d.%m.%Y %H:%M:%S")
 
 Need to check how to take from satNogs and according to that I will know more.
 """
@@ -200,6 +205,7 @@ def decode_data_for_sql(data, json_params, default_endian):
 
 
 def main():
+    create_tables()
     #check it.
     data = JSONS["tevels_beacon.json"]
     dec = decode_data_for_sql("0000000B00018D00CA1E8013F80C7EFF660DE3FF7D0000000A00000ABD410050384100DC664100611A42007EBA410004474135F02F6900C01B470000000000A0F17700E0D530000000001200000074CF0F0000000000FFFFFFFFFFFFFFFF2BCEC822D9E483220400000000CA3640601D20690000FFFFFFFF000B00000050613A425671F941F7B17E4051F82444B2BADDC50000DDC2",data["subType"]["params"], False)
