@@ -1,5 +1,6 @@
 import requests
 
+token = '935188971e64257d0736b4f89f575791312226fb'
 
 
 def get_satnogs_info(search_query):
@@ -30,6 +31,14 @@ def get_satnogs_info(search_query):
     except Exception as e:
         return f"Error connecting to SatNOGS: {e}"
 
+def telem():
+    url = f"https://db.satnogs.org/api/telemetry/?satellite=63213"
+    headers = {'Authorization': f'Token {token}'}
 
-# Example: Search for a weather satellite
-print(get_satnogs_info("NOAA 19"))
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    return data
+
+for item in telem():
+    print(item)
+fram = {"hello": 1}
