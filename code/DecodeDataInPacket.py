@@ -6,16 +6,16 @@ from createSQLTable import create_tables
 connection_sql = sqlite3.connect("../data/SatDatabase.db")
 connection_sql.row_factory = sqlite3.Row
 
-def get_norad_id(sats_name):
+#make the start dictionaries
+def get_norad_id(satellites_name):
     norad_id = []
     url = f"https://db.satnogs.org/api/satellites/?search&format=json"
     response = requests.get(url)
     data = response.json()
     for sat in data:
-        if sat['name'] in sats_name:
+        if sat['name'] in satellites_name:
             norad_id.append(sat['norad_cat_id'])
     return norad_id
-
 def make_dicts_according_to_config():
     try:
         with open(r'..\jsons\config.json', 'r') as file:
@@ -101,6 +101,7 @@ except KeyError or Exception:
     print("you have a problem in one of the normal jsons, fix it (it was fine while the table created first)")
     raise TypeError("problem in json")
 
+#used in server
 def create_options():
     ret = ""
     for sat in SATELLITES:
@@ -161,6 +162,7 @@ And also the creation because I want it to be arrange.
 Need to check how to take from satNogs and according to that I will know more.
 """
 
+#for the infinite loop that reads from the satnogs. it may be class or not, I still need to deside on that.
 
 SIZE_IN_BYTES = {
     "uint": 4, # we read 4 and then change to text.

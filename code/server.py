@@ -1,5 +1,5 @@
 __author__ = 'Maayan'
-import http.server, socketserver, ssl
+import http.server, socketserver, ssl, json
 import DecodeDataInPacket as DDIP
 
 website_folder = "/webpage"
@@ -27,15 +27,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
-            self.wfile.write(f"mostResent={newest}|lestResent={oldest}|data={html}".encode("utf-8"))
+            self.wfile.write(json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8"))
             # protocol chooseSatellite/satName
         elif self.path.startswith("/addTop/"):
             html, oldest, newest = self.create_send(True)
-            self.wfile.write(f"mostResent={newest}|data={html}".encode("utf-8"))
+            self.wfile.write(json.dumps({"mostResent":newest, "data":html}).encode("utf-8"))
             # protocol addTop/satName={}?mostResent={}
         elif self.path.startswith("/addBottom/"):
             html, oldest, newest = self.create_send(False)
-            self.wfile.write(f"lestResent={oldest}|data={html}".encode("utf-8"))
+            self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
             # protocol addBottom/satName={}?lestResent={}
         #todo: need to create the js for this. and add a lot of comments.
 
@@ -52,6 +52,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 def main():
     try:
+        DDIP.create_tables()
+        # check it.
         #Create the selection from the json and template. Used while the server is active reset each run.
         with open(r"webpage\templateWebsite.html", 'r') as file:
             website = file.read()

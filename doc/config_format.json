@@ -3,14 +3,14 @@
         "callsign": "{sat_callsign}",
         "id": "{dec number, id from protocol}",
         "tableName": "{what the sql table will be called}",
-        "beacon_json": "{the json of the data/beacon format}",
-        "primeKey": "{what is the prime key of the table}"
+        "satnogs_name": "{how the sat is called in satnogs}",
+        "beacon_json": "{the json of the data/beacon format}"
     },
     "{satName2} can add as much as you will like": {
         "callsign": "{sat_callsign}",
         "id": "{dec number, id from protocol}",
         "tableName": "{what the sql table will be called}",
-        "beacon_json": "{the json of the data/beacon format}",
-        "primeKey": "{what is the prime key of the table}"
+        "satnogs_name": "{how the sat is called in satnogs}",
+        "beacon_json": "{the json of the data/beacon format}"
     }
 }

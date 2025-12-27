@@ -1,7 +1,8 @@
 {
     "settings": {
         "isDefaultLittleEndian": true,
-        "opcode": "{opcode in hex (type + subtype}"
+        "opcode": "{opcode in hex (type + subtype}",
+        "prime_key": "which param is the primary key"
     },
     "subType":
     {
