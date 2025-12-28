@@ -1,9 +1,10 @@
 // JavaScript source code
+
 let satName = "";
 let newestTime = 0;
 let oldestTime = 0;
 
-function ChooseSat(choice) {
+async function ChooseSat(choice) {
     choice = choice.value;
     if (choice == "Choose satellite") return 0;
     const url = "/chooseSatellite/" + choice;

@@ -4,9 +4,7 @@ import sqlite3
 connection_sql = sqlite3.connect("../data/SatDatabase.db")
 cursor_obj = connection_sql.cursor()
 
-#right now I will make it for the format we created in our program. If I have more time, I will change it to be more general.
-# add param to the list. remember you will need to create a new table if you change it (take the raws and continue from there).
-
+#right now I will make it for the format we created in our program. If I have more time, I will maybe change it to be more general.
 
 types = {
     "uint": "UNSIGNED INT", # in sql you don't have unsigned. and because I don't do stuff with it but store it we make it text.
@@ -93,7 +91,7 @@ def create_tables():
             cursor_obj.execute(sql_query)
             print(f"Table, {table_name}, is Ready")
         except Exception as e: print(f"had an exception '{e}' in creating table.")
-
+    connection_sql.commit()
     connection_sql.close()
 
 def main():

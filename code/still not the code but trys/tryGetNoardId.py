@@ -1,7 +1,11 @@
 import requests
+from datetime import datetime
 
-token = '935188971e64257d0736b4f89f575791312226fb'
+token = '7fb141fe2017233114f1539a24ab64bb49850a91'
 
+newest_date = {
+
+}
 
 def get_satnogs_info(search_query):
     # This searches the SatNOGS database for a look a like name
@@ -31,14 +35,25 @@ def get_satnogs_info(search_query):
     except Exception as e:
         return f"Error connecting to SatNOGS: {e}"
 
+
 def telem():
-    url = f"https://db.satnogs.org/api/telemetry/?satellite=63213"
+    url = f"https://network.satnogs.org/api/observations/?sat_id=TJDQ-0178-9438-9402-8155&results=d1"
     headers = {'Authorization': f'Token {token}'}
 
     response = requests.get(url, headers=headers)
     data = response.json()
-    return data
+    print(data)
 
-for item in telem():
-    print(item)
-fram = {"hello": 1}
+# for item in telem():
+#     print({"timestamp": item["timestamp"], "frame": item["frame"]})
+
+#telem()
+# frame = bytes.fromhex("A8AC98645A68E0A8AC98645A686303F0")
+#
+# src = frame[:7]
+# frame = frame[16:]
+# callsign = ''.join(chr(b >> 1) for b in src[:6])
+#
+# print(f"{callsign} : {frame}")
+x = datetime.fromisoformat("2025-12-28T03:38:02Z".replace("Z", "+00:00"))
+print(str(x))

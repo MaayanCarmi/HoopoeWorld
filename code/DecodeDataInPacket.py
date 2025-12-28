@@ -1,7 +1,9 @@
 __author__ = 'Maayan'
 import json, threading, sqlite3, requests
+import time, csv
 from struct import unpack
 from datetime import datetime
+
 from createSQLTable import create_tables
 connection_sql = sqlite3.connect("../data/SatDatabase.db")
 connection_sql.row_factory = sqlite3.Row
@@ -14,7 +16,7 @@ def get_norad_id(satellites_name):
     data = response.json()
     for sat in data:
         if sat['name'] in satellites_name:
-            norad_id.append(sat['norad_cat_id'])
+            norad_id.append({"satName": sat['name'], "noradId": sat['norad_cat_id']})
     return norad_id
 def make_dicts_according_to_config():
     try:
@@ -118,24 +120,24 @@ def make_for_html(sat_name, last_date, top):
     """
     #last date is in unix format. (int)
     sat: dict = SATELLITES[sat_name]
-    sql_query = f"SELECT * FROM {sat['tableName']} WHERE {JSONS_FOR_HTML[sat['format_json']]['primaryKey']} {'>' if top else '<'} {last_date} ORDER BY {JSONS_FOR_HTML[sat['format_json']]['primaryKey']} DESC LIMIT 25"
+    sql_query = f"SELECT * FROM {sat['table_name']} WHERE {JSONS_FOR_HTML[sat['json']]['primaryKey']} {'>' if top else '<'} {last_date} ORDER BY {JSONS_FOR_HTML[sat['json']]['primaryKey']} DESC LIMIT 25"
     with sat["threadLock"]:
         sat["cursor"].execute(sql_query)
         data = sat["cursor"].fetchall()
     html_code = ""
-    json_sorted = dict(sorted(JSONS_FOR_HTML[sat['format_json']].items()))
+    json_sorted = dict(sorted(JSONS_FOR_HTML[sat['json']].items()))
     time_params = json_sorted["time_param"]
     primary = json_sorted["primaryKey"]
     del json_sorted["primaryKey"], json_sorted["time_param"]
     for row in data:
-        html_code += f'<div class="containerPacket" style="margin-top: 6%">\n<div class="divRaw">\n<div style="text-align: center"><u><b>Hex raw:</b></u></div>\n{row["raw"]}</div>\n'
+        html_code += f'<div class="containerPacket">\n<div class="divRaw">\n<div style="text-align: center"><u><b>Hex raw:</b></u></div>\n{row["raw"].upper()}</div>\n'
         for i in range(1, len(json_sorted) // 5 + 1):
             html_code += '<div class="container">\n'
             for k in range(5):
                 html_code += f'<div class="containerSub">\n<div class="titleSub">{list(json_sorted.keys())[i*k]}</div>\n<hr />\n'
                 for param_name in json_sorted[list(json_sorted.keys())[i*k]]:
                     html_code += f'<u>{param_name}:</u> {row[param_name] if param_name not in time_params else datetime.fromtimestamp(row[param_name]).strftime("%d.%m.%Y %H:%M:%S")}<br />\n'
-                html_code += '</div">\n'
+                html_code += '</div"></div>\n'
             html_code += '</div>\n'
             if len(json_sorted) % 5 != 0 and i == (len(json_sorted) // 5):
                 html_code += '<div class="container">\n'
@@ -183,8 +185,8 @@ def doing_format(data, data_type, format_data):
         return data
 
 def decoded_param(data_bytes, data_type, is_big):
+    if data_type == "string": return data_bytes.decode("utf-8")
     if data_type == "byte": return unpack(('>' if is_big else '<') + "c", data_bytes)[0]
-    if data_type == "string": return unpack(('>' if is_big else '<') + "s", data_bytes)[0]
     if data_type == "short": return unpack(('>' if is_big else '<') + "h", data_bytes)[0]
     if data_type == "uint": return unpack(('>' if is_big else '<') + "I", data_bytes)[0]
     if data_type == "ushort": return unpack(('>' if is_big else '<') + "H", data_bytes)[0]
@@ -200,17 +202,16 @@ def decode_data_for_sql(data, json_params, default_endian):
     :param default_endian: if big or little.
     :return:
     """
-    i = 8*2 #where in the packet we start. (where the params are) again it's only for our sats.
+    i = 8 #where in the packet we start. (where the params are) again it's only for our sats.
     decode_to_sql = [] #in hope
     bytes_from_data = 0
     for param in json_params:
         if param["type"] != "string":
-            bytes_from_data = data[i: i + SIZE_IN_BYTES[param["type"]]*2]
-            i += SIZE_IN_BYTES[param["type"]]*2
+            bytes_from_data = data[i: i + SIZE_IN_BYTES[param["type"]]]
+            i += SIZE_IN_BYTES[param["type"]]
         else:
-            bytes_from_data = data[i: i + data[i:].indexof(0x00)*2]
-            i += data[i:].indexof(0x00)*2
-        bytes_from_data = bytes.fromhex(bytes_from_data)
+            bytes_from_data = data[i: i + data[i:].indexof(0x00)]
+            i += data[i:].indexof(0x00)
         if "isBigEndian" in param.keys():
             to_append = decoded_param(bytes_from_data, param["type"], param["isBigEndian"])
         else:
@@ -220,17 +221,94 @@ def decode_data_for_sql(data, json_params, default_endian):
         elif "format" in param.keys():
             to_append = doing_format(to_append, param["type"], param["format"])
         decode_to_sql.append(to_append)
-    decode_to_sql.append(data)
+    decode_to_sql.append(data.hex())
     return decode_to_sql
+
+class SatNogsToSQL:
+    def __init__(self, newest_dates=None):
+        if not newest_dates: self.newest_dates = {sat: "2000-01-01T00:00:00+00:00" for sat in SATELLITES}
+        else: self.newest_dates = newest_dates
+        token = '7fb141fe2017233114f1539a24ab64bb49850a91'
+        self.__headers = {'Authorization': f'Token {token}'}
+
+    def check_packet(self, packet, timestamp):
+        frame = bytes.fromhex(packet)
+        src = frame[:7]
+        frame = frame[16:]
+        callsign = ''.join(chr(b >> 1) for b in src[:6])
+        if callsign not in [SATELLITES[sat]["callsign"] for sat in SATELLITES]: return False, ["", ""]
+        sat_name = [sat for sat in SATELLITES if callsign == SATELLITES[sat]["callsign"]][0]
+        if datetime.fromisoformat(timestamp.replace("Z", "+00:00")) <= datetime.fromisoformat(self.newest_dates[sat_name]): return False, ["time", ""]
+        if frame[4:6] != bytes.fromhex(JSONS[SATELLITES[sat_name]["json"]]["settings"]["opcode"]): return False, ["", ""]
+        return True, [sat_name, frame]
+
+    def enter_packets(self, packets):
+        results = packets["results"]
+        ret_val = "fine"
+        for res in results:
+            ret = self.check_packet(res["frame"], res["timestamp"])
+            if not ret[0]:
+                if ret[1][0] != "time": continue
+                else:
+                    ret_val = "time"
+                    break
+            sat_name, packet = ret[1]
+            json_file = JSONS[SATELLITES[sat_name]["json"]]
+            values = decode_data_for_sql(packet, json_file["subType"]["params"], not json_file["settings"]["isDefaultLittleEndian"])
+            sql_query = f"INSERT OR IGNORE INTO {SATELLITES[sat_name]['table_name']} VALUES ({" ,".join([str(x) if type(x) != str else f"'{x}'" for x in values])});"
+            with SATELLITES[sat_name]["threadLock"]:
+                SATELLITES[sat_name]["cursor"].execute(sql_query)
+                print("hi")
+        connection_sql.commit()
+        print("bye")
+        return str(datetime.fromisoformat(results[0]["timestamp"].replace("Z", "+00:00"))), ret_val  # need to add the check for the time. when I get there I should stop the loop and only do what's before. (by if == then)
+
+
+    def infinite_loop(self):
+        try:
+            while True:
+                for norad_id in SatIds:
+                    url = f"https://db.satnogs.org/api/telemetry/?satellite={norad_id["noradId"]}"
+                    response = requests.get(url, headers=self.__headers)
+                    data = response.json()
+                    self.newest_dates[norad_id["satName"]], val = self.enter_packets(data)
+                    if val == "time": continue
+                    while data["next"]:
+                        response = requests.get(data["next"], headers=self.__headers)
+                        data = response.json()
+                        val = self.enter_packets(data)
+                        if val[1] == "time": break
+                        time.sleep(30)
+                    time.sleep(60)
+                    print("hello")
+                break
+            #time.sleep(3600)
+        finally:
+            with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
+
+    # def infinite_loop(self):
+    #     with open("../data/Tevel19.csv", newline="", encoding="utf-8") as f:
+    #         reader = csv.reader(f)
+    #         count = 0
+    #         data = {"results": []}
+    #         for row in reader:
+    #             row = row[0]
+    #             if len(data["results"]) >= 25:
+    #                 self.enter_packets(data)
+    #                 data["results"] = []
+    #             data_mini = row.split("|")[:2]
+    #             data["results"].append({"timestamp": f"{data_mini[0].replace(" ", "T")}Z", "frame": data_mini[1]})
+
 
 
 def main():
     create_tables()
-    #check it.
-    data = JSONS["tevels_beacon.json"]
-    dec = decode_data_for_sql("0000000B00018D00CA1E8013F80C7EFF660DE3FF7D0000000A00000ABD410050384100DC664100611A42007EBA410004474135F02F6900C01B470000000000A0F17700E0D530000000001200000074CF0F0000000000FFFFFFFFFFFFFFFF2BCEC822D9E483220400000000CA3640601D20690000FFFFFFFF000B00000050613A425671F941F7B17E4051F82444B2BADDC50000DDC2",data["subType"]["params"], False)
+    with open("../jsons/newestTime.json", "r") as file:
+        packets_to_sql = SatNogsToSQL(json.load(file))
+    packets_to_sql.infinite_loop()
 
-    print(dec)
+    #check it.
+
 
 if __name__ == "__main__":
     try:

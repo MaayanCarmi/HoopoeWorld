@@ -12,7 +12,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def create_send(self, top):
         params = self.path.split("/")[-1]
         params = params.split("?")
-        sat_name = params[0].split("=")[1]
+        sat_name = params[0].split("=")[1].replace("%20", " ")
         most_resent = params[1].split("=")[1]
         html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top)
         self.send_response(200)
@@ -21,21 +21,27 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         return html, oldest, newest
 
     def do_GET(self):
+        print(f"Received request for: {self.path}")
         if self.path.startswith("/chooseSatellite/"):
-            sat_name = self.path.split("/")[-1]
+            sat_name = self.path.split("/")[-1].replace("%20", " ")
             html, oldest, newest = DDIP.make_for_html(sat_name, 0, True)
+            html = html.replace('class="containerPacket"', 'class="containerPacket" style=" margin-top: 6%"', 1)
             self.send_response(200)
             self.send_header("Content-type", "text/html")
             self.end_headers()
+            print(f"send: {json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8")}")
             self.wfile.write(json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8"))
+            return
             # protocol chooseSatellite/satName
         elif self.path.startswith("/addTop/"):
             html, oldest, newest = self.create_send(True)
             self.wfile.write(json.dumps({"mostResent":newest, "data":html}).encode("utf-8"))
+            return
             # protocol addTop/satName={}?mostResent={}
         elif self.path.startswith("/addBottom/"):
             html, oldest, newest = self.create_send(False)
             self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
+            return
             # protocol addBottom/satName={}?lestResent={}
         #todo: need to create the js for this. and add a lot of comments.
 
