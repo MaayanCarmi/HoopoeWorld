@@ -148,12 +148,12 @@ def make_for_html(sat_name, last_date, top):
                     html_code += '</div">\n'
                 html_code += '</div>\n'
         html_code += '</div>\n'
+    if not data: return "", last_date, last_date
     return html_code, data[-1][primary], data[0][primary]
 
 
 
-#todo maybe I will change it to be in the server and I will call the function there. in second thouh no
-#todo because it will be needing threads and a lock so I will need to have him. (I think I will make a lock on each sat diffrently (and only on the SQL).
+
 #here I have the with lock while in the loop it will be different.
 """
 todo: I will do here everything that is reading the jsons and etc. there is stuff that I will need
@@ -228,8 +228,9 @@ class SatNogsToSQL:
     def __init__(self, newest_dates=None):
         if not newest_dates: self.newest_dates = {sat: "2000-01-01T00:00:00+00:00" for sat in SATELLITES}
         else: self.newest_dates = newest_dates
-        token = '7fb141fe2017233114f1539a24ab64bb49850a91'
+        token = '935188971e64257d0736b4f89f575791312226fb' #todo: need to find a way to make it permeate
         self.__headers = {'Authorization': f'Token {token}'}
+        self.run = True
 
     def check_packet(self, packet, timestamp):
         frame = bytes.fromhex(packet)
@@ -258,15 +259,13 @@ class SatNogsToSQL:
             sql_query = f"INSERT OR IGNORE INTO {SATELLITES[sat_name]['table_name']} VALUES ({" ,".join([str(x) if type(x) != str else f"'{x}'" for x in values])});"
             with SATELLITES[sat_name]["threadLock"]:
                 SATELLITES[sat_name]["cursor"].execute(sql_query)
-                print("hi")
         connection_sql.commit()
-        print("bye")
         return str(datetime.fromisoformat(results[0]["timestamp"].replace("Z", "+00:00"))), ret_val  # need to add the check for the time. when I get there I should stop the loop and only do what's before. (by if == then)
 
 
     def infinite_loop(self):
         try:
-            while True:
+            while self.run:
                 for norad_id in SatIds:
                     url = f"https://db.satnogs.org/api/telemetry/?satellite={norad_id["noradId"]}"
                     response = requests.get(url, headers=self.__headers)
@@ -278,11 +277,9 @@ class SatNogsToSQL:
                         data = response.json()
                         val = self.enter_packets(data)
                         if val[1] == "time": break
-                        time.sleep(30)
-                    time.sleep(60)
-                    print("hello")
-                break
-            #time.sleep(3600)
+                        time.sleep(45)
+                    time.sleep(120)
+            time.sleep(7200) # 2 hours.
         finally:
             with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
 

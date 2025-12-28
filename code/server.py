@@ -1,5 +1,5 @@
 __author__ = 'Maayan'
-import http.server, socketserver, ssl, json
+import http.server, socketserver, ssl, json, threading
 import DecodeDataInPacket as DDIP
 
 website_folder = "/webpage"
@@ -40,6 +40,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # protocol addTop/satName={}?mostResent={}
         elif self.path.startswith("/addBottom/"):
             html, oldest, newest = self.create_send(False)
+            print(f"send: {json.dumps({"lestResent":oldest, "data":html}).encode("utf-8")}")
             self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
             return
             # protocol addBottom/satName={}?lestResent={}
@@ -67,8 +68,10 @@ def main():
         with open(r"webpage\currentWebsite.html", 'w') as file:
             file.write(website)
 
-        #call here to the infinite loop in thread
-
+        # with open("../jsons/newestTime.json", "r") as file:
+        #     packets_to_sql = DDIP.SatNogsToSQL(json.load(file))
+        # satnogs_thread = threading.Thread(target=packets_to_sql.infinite_loop())
+        # satnogs_thread.start()
         server_address = ('0.0.0.0', 443)
         httpd = http.server.HTTPServer(server_address, Handler)
 
@@ -81,8 +84,12 @@ def main():
 
         httpd.serve_forever()
     finally:
+        # try:
+        #     packets_to_sql.run = False
+        #     satnogs_thread.join()
+        # except Exception: pass
+        #
         pass
-
 
 if __name__ == "__main__":
     main()
