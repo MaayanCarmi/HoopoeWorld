@@ -5,10 +5,36 @@ from struct import unpack
 from datetime import datetime
 
 from createSQLTable import create_tables
-connection_sql = sqlite3.connect("../data/SatDatabase.db")
+connection_sql = sqlite3.connect("../data/SatDatabase.db", check_same_thread=False) #todo really need to change that
 connection_sql.row_factory = sqlite3.Row
 
 #make the start dictionaries
+def check_make_formula(formula):
+    formula = formula.replace(" ", "").lower()
+    if formula.count("x") == 0:
+        raise TypeError("Incorrect format, you need to have at lest one x")
+    count_open = 0
+    f = 0
+    while f < len(formula):
+        if not formula[f].isdigit() and formula[f] not in "x()-+%*/":
+            raise TypeError("Incorrect format, have invalid chars.")
+        if formula[f] == "(": count_open += 1
+        elif formula[f] == ")" and count_open == 0:
+            raise TypeError("Incorrect format, you have more ) then (")
+        elif formula[f] == ")": count_open -= 1
+        if f != 0 and formula[f] == "(" and formula[f-1] == ".":
+            raise TypeError("Incorrect format, you have dot in before parentheses")
+        if f != 0 and formula[f] == "(" and formula[f-1] not in "*/-+%(":
+            formula = formula[:f] + "*(" + formula[f+1:]
+            f += 1
+        f += 1
+    if count_open != 0:
+        raise TypeError("Incorrect format, you don't close all the parentheses")
+    if formula[-1] in "*/%(.":
+        raise TypeError("Incorrect format, the format is not finished.")
+
+    return True, formula
+
 def get_norad_id(satellites_name):
     norad_id = []
     url = f"https://db.satnogs.org/api/satellites/?search&format=json"
@@ -36,7 +62,7 @@ def make_dicts_according_to_config():
             format_json = data[x]['beacon_json']
             sat_ids.append(data[x]["satnogs_name"]) #here need to put from the chat the ids.
             sats[x] = {"table_name": table_name, "callsign": callsign,
-                       "json": format_json, "threadLock": threading.Lock(),
+                       "json": format_json, "satnogs": sat_ids[-1], "threadLock": threading.Lock(),
                        "cursor": connection_sql.cursor()}
             if format_json not in jsons.keys():
                 with open(rf'..\jsons\{format_json}', 'r') as file:
@@ -45,6 +71,20 @@ def make_dicts_according_to_config():
                         jsons[format_json]["settings"]["opcode"]
                     except KeyError:
                         print("you don't have opcode in json file.")
+                        raise TypeError("Can't make it work, need change")
+                    try:
+                        new_params = []
+                        for param in jsons[format_json]["subType"]["params"]:
+                            if "format" in param.keys():
+                                ans = check_make_formula(param["format"])
+                                if ans[0]:
+                                    param["format"] = ans[1]
+                                else:
+                                    raise TypeError("format, error")
+                            new_params.append(param)
+                        jsons[format_json]["subType"]["params"] = new_params
+                    except KeyError:
+                        print("you don't have params or subType in json file.")
                         raise TypeError("Can't make it work, need change")
         except KeyError:
             print("you don't have all the needed tags in config.")
@@ -181,8 +221,7 @@ SIZE_IN_BYTES = {
 def doing_format(data, data_type, format_data):
     if data_type == "byte": return format_data[chr(ord(data) + 0x30)]
     if data_type in ["short", "ushort", "uint", "float", "double", "int"]:
-        #pass #todo: need to create the way for format.
-        return data
+        return eval(format_data, {"x": data})
 
 def decoded_param(data_bytes, data_type, is_big):
     if data_type == "string": return data_bytes.decode("utf-8")
@@ -238,8 +277,8 @@ class SatNogsToSQL:
         frame = frame[16:]
         callsign = ''.join(chr(b >> 1) for b in src[:6])
         if callsign not in [SATELLITES[sat]["callsign"] for sat in SATELLITES]: return False, ["", ""]
-        sat_name = [sat for sat in SATELLITES if callsign == SATELLITES[sat]["callsign"]][0]
-        if datetime.fromisoformat(timestamp.replace("Z", "+00:00")) <= datetime.fromisoformat(self.newest_dates[sat_name]): return False, ["time", ""]
+        sat_name, satnog_name = [[sat, SATELLITES[sat]["satnogs"]] for sat in SATELLITES if callsign == SATELLITES[sat]["callsign"]][0]
+        if datetime.fromisoformat(timestamp.replace("Z", "+00:00")) <= datetime.fromisoformat(self.newest_dates[satnog_name]): return False, ["time", ""]
         if frame[4:6] != bytes.fromhex(JSONS[SATELLITES[sat_name]["json"]]["settings"]["opcode"]): return False, ["", ""]
         return True, [sat_name, frame]
 
@@ -271,15 +310,23 @@ class SatNogsToSQL:
                     response = requests.get(url, headers=self.__headers)
                     data = response.json()
                     self.newest_dates[norad_id["satName"]], val = self.enter_packets(data)
-                    if val == "time": continue
+                    print("hi")
+                    if val == "time":
+                        print("time")
+                        time.sleep(120)
+                        continue
+                    time.sleep(45)
                     while data["next"]:
                         response = requests.get(data["next"], headers=self.__headers)
                         data = response.json()
                         val = self.enter_packets(data)
-                        if val[1] == "time": break
+                        if val[1] == "time":
+                            print("time")
+                            break
                         time.sleep(45)
+                    print("bye")
                     time.sleep(120)
-            time.sleep(7200) # 2 hours.
+                time.sleep(7200) # 2 hours.
         finally:
             with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
 
@@ -300,9 +347,9 @@ class SatNogsToSQL:
 
 def main():
     create_tables()
-    with open("../jsons/newestTime.json", "r") as file:
-        packets_to_sql = SatNogsToSQL(json.load(file))
-    packets_to_sql.infinite_loop()
+    # with open("../jsons/newestTime.json", "r") as file:
+    #     packets_to_sql = SatNogsToSQL(json.load(file))
+    # packets_to_sql.infinite_loop()
 
     #check it.
 

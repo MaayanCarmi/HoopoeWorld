@@ -56,6 +56,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         print(f"Received request for: {self.path}")
         return super().do_GET()
 
+def https_server():
+    print("hello")
+    server_address = ('0.0.0.0', 443)
+    httpd = http.server.HTTPServer(server_address, Handler)
+
+    # SSL Setup
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.load_cert_chain(certfile="Certificate/cert_school.pem", keyfile="Certificate/key_school.pem")
+    # Wrap the socket (to be with SSL)
+    httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
+    httpd.serve_forever()
 
 def main():
     try:
@@ -68,27 +79,19 @@ def main():
         with open(r"webpage\currentWebsite.html", 'w') as file:
             file.write(website)
 
-        # with open("../jsons/newestTime.json", "r") as file:
-        #     packets_to_sql = DDIP.SatNogsToSQL(json.load(file))
-        # satnogs_thread = threading.Thread(target=packets_to_sql.infinite_loop())
-        # satnogs_thread.start()
-        server_address = ('0.0.0.0', 443)
-        httpd = http.server.HTTPServer(server_address, Handler)
-
-        # SSL Setup
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        context.load_cert_chain(certfile="Certificate/cert.pem", keyfile="Certificate/key.pem")
-        # Wrap the socket (to be with SSL)
-        httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
+        with open("../jsons/newestTime.json", "r") as file:
+            packets_to_sql = DDIP.SatNogsToSQL(json.load(file))
+        https_thread = threading.Thread(target=https_server)
+        https_thread.start()
+        packets_to_sql.infinite_loop()
 
 
-        httpd.serve_forever()
     finally:
-        # try:
-        #     packets_to_sql.run = False
-        #     satnogs_thread.join()
-        # except Exception: pass
-        #
+        try:
+            packets_to_sql.run = False
+            https_thread.join()
+        except Exception: pass
+
         pass
 
 if __name__ == "__main__":
