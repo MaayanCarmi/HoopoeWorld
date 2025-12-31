@@ -1,7 +1,9 @@
 {
     "settings": {
-        "isDefaultLittleEndian": true,
+        "isDefaultBigEndian": false,
         "opcode": "{opcode in hex (type + subtype}",
+        "sizeof_header": "{full size of header. ITS an int (not a string like now)}",
+        "place_start_opcode": "{counter start at 1. ITS an int (not a string like now)}",
         "prime_key": "which param is the primary key"
     },
     "subType":
@@ -13,7 +15,7 @@
                 "type": "{type of param}",
                 "subSystem": "{if we have a system it is about} - from here included not a must",
                 "enum": "{if the type is byte and want to display enum}",
-                "format": "{in case we have changes for the param (x). can do +, -, *, /, ^ (for power)}",
+                "format": "{in case we have changes for the param (x). can do +, -, *, /, ** (for power)}",
                 "isBigEndian": false
             },
             {

@@ -1,9 +1,9 @@
 __author__ = 'Maayan'
 import json, threading, sqlite3, requests
-import time, csv
+import time, csv, io
 from struct import unpack
 from datetime import datetime
-
+import pandas as pd
 from createSQLTable import create_tables
 
 # I think I make enough checks to make sure it won't be at the same time in both function
@@ -90,8 +90,13 @@ def make_dicts_according_to_config():
             if format_json not in jsons.keys(): #if we don't already have it
                 with open(rf'..\jsons\{format_json}', 'r') as file: #try open if error have an exception.
                     jsons[format_json] = json.load(file)
-                    try: jsons[format_json]["settings"]["opcode"] #check we have an opcode.
-                    except KeyError: raise TypeError(f"Can't make it work, Don't have opcode in json file ({format_json})")
+                    try:
+                        setting = jsons[format_json]["settings"] #check we have an opcode.
+                        setting["opcode"] = setting["opcode"]
+                        setting["sizeof_header"] = setting["sizeof_header"]
+                        setting["place_start_opcode"] = setting["place_start_opcode"]
+                    except KeyError: raise TypeError(f"Can't make it work, Don't have opcode or all the headers in json file ({format_json})")
+                    except Exception as e: raise TypeError(f"Can't make it work, need to be int here: {format_json}")
                     try: #make sure we have subType and params, also if you have format make it to work.
                         new_params = []
                         for param in jsons[format_json]["subType"]["params"]:
@@ -210,6 +215,31 @@ def make_for_html(sat_name, last_date, top):
     if not data: return "", last_date, last_date #if got nothing
     return html_code, data[-1][primary], data[0][primary] #else return
 
+def make_excel(params):
+    sql_filter = ""
+    download_type = params["type"]
+    json_format = SATELLITES[params["satName"]]["json"]
+    primary_key = JSONS[json_format]["settings"]["prime_key"]
+    if download_type == "StartToEndTime":
+        sql_filter = f"WHERE {params["start"]} < {primary_key} AND {params["end"]} > {primary_key}"
+    elif download_type == "StartTime":
+        sql_filter = f"WHERE {params["start"]} < {primary_key}"
+    sql_query = f"SELECT * FROM {SATELLITES[params["satName"]]["table_name"]} {sql_filter} ORDER BY {primary_key} DESC "
+    if download_type == "Limit":
+        sql_query += f"LIMIT {params["limit"]}"
+    with SATELLITES[params["satName"]]["threadLock"]:
+        df = pd.read_sql(sql_query, connection_sql)
+    for col in JSONS_FOR_HTML[json_format]["time_param"]:
+        if col in df.columns:
+            df[col] = pd.to_datetime(df[col], unit='s')
+            df[col] = df[col].dt.strftime('%d.%m.%Y %H:%M:%S')
+    df["raw"] = df["raw"].Hex()
+    output = io.BytesIO()
+    file_name = f'{params["satName"]}_{datetime.now().strftime("%d-%m-%Y")}'
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name=file_name[:31])
+    return output, file_name
+
 #satNogs, save to SQL
 SIZE_IN_BYTES = {
     "uint": 4,
@@ -255,15 +285,15 @@ def decoded_param(data_bytes, data_type, is_big):
     if data_type == "double": return unpack(('>' if is_big else '<') + "d", data_bytes)[0]
     if data_type in ["int", "unixtime"]: return unpack(('>' if is_big else '<') + "i", data_bytes)[0]
 
-def decode_data_for_sql(data, json_params, default_endian):
+def decode_data_for_sql(data, json_params, setting):
     """
     getting parameters and by them making the params that needed to create the INSERT to the SQL.
     :param data: Hex that is only from the data section of Ax25
     :param json_params: according to what we will learn getting the params and the type of each.
-    :param default_endian: if big or little.
+    :param setting: have the setting of the json
     :return: values for SQL INSERT
     """
-    i = 8 #where in the packet we start. (where the params are) again it's only for our sats. #todo change it to be more general
+    i = setting["sizeof_header"] #where in the packet we start. (where the params are) again it's only for our sats. #todo change it to be more general
     decode_to_sql = []
     for param in json_params:
         if param["type"] != "string": #if not string, I know the size os take the data there
@@ -275,7 +305,7 @@ def decode_data_for_sql(data, json_params, default_endian):
         if "isBigEndian" in param.keys():
             to_append = decoded_param(bytes_from_data, param["type"], param["isBigEndian"]) #if big send True or False
         else:
-            to_append = decoded_param(bytes_from_data, param["type"], default_endian) #send default
+            to_append = decoded_param(bytes_from_data, param["type"], setting["isDefaultBigEndian"]) #send default
         if param["type"] == "byte" and "enum" in param.keys():
             to_append = doing_format(to_append, "byte", param["enum"]) #make the format of enum in byte, if we have
         elif "format" in param.keys():
@@ -283,6 +313,16 @@ def decode_data_for_sql(data, json_params, default_endian):
         decode_to_sql.append(to_append) #add to the list of variables
     decode_to_sql.append(data.hex()) #also add raw
     return decode_to_sql
+
+def check_respond(respond):
+    """
+    get the response from the server and needed to check we don't have 429 error or invalid token.
+    if invalid need to raise an error else need to wait and then continue.
+    :param respond: the response from the satNogs.
+    :return: True/False.
+    """
+    #todo: I need to get to an error to see how it work exactly.
+    ...
 
 class SatNogsToSQL:
     # IMPORTANT: satNogs doesn't like when we get too much in a day, so if it's not a new sat first get the csv and decrypt it.
@@ -311,7 +351,9 @@ class SatNogsToSQL:
         #check the time is fine, and we really need this packet, and it's not just because
         if datetime.fromisoformat(timestamp.replace("Z", "+00:00")) < datetime.fromisoformat(self.newest_dates[satnog_name]): return False, ["time", ""]
         #make sure we have the correct opcode
-        if frame[4:6] != bytes.fromhex(JSONS[SATELLITES[sat_name]["json"]]["settings"]["opcode"]): return False, ["", ""]
+        opcode = bytes.fromhex(JSONS[SATELLITES[sat_name]["json"]]["settings"]["opcode"])
+        place_opcode = JSONS[SATELLITES[sat_name]["json"]]["settings"]["place_start_opcode"] - 1
+        if frame[place_opcode:place_opcode + len(opcode)] != opcode: return False, ["", ""]
         return True, [sat_name, frame]
 
     def enter_packets(self, packets):
@@ -332,14 +374,13 @@ class SatNogsToSQL:
             sat_name, packet = ret[1] #get both satName and the frame (that is in bytes)
             json_file = JSONS[SATELLITES[sat_name]["json"]] #the dict of the json
             #get values to enter to SQL
-            values = decode_data_for_sql(packet, json_file["subType"]["params"], not json_file["settings"]["isDefaultLittleEndian"])
+            values = decode_data_for_sql(packet, json_file["subType"]["params"], json_file["settings"])
             #change to SQL insert values format.
             sql_query = f"INSERT OR IGNORE INTO {SATELLITES[sat_name]['table_name']} VALUES ({" ,".join([str(x) if type(x) != str else f"'{x}'" for x in values])});"
             with SATELLITES[sat_name]["threadLock"]: #make sure we can
                 SATELLITES[sat_name]["cursor"].execute(sql_query)
-        connection_sql.commit() #save it in SQL
+                connection_sql.commit() #save it in SQL
         return str(datetime.fromisoformat(results[0]["timestamp"].replace("Z", "+00:00"))), ret_val  # need to add the check for the time. when I get there I should stop the loop and only do what's before. (by if == then)
-
 
     def infinite_loop(self):
         """
@@ -355,7 +396,7 @@ class SatNogsToSQL:
                     self.newest_dates[norad_id["satName"]], val = self.enter_packets(data) #get time and add to SQL
                     print("hi") #debug
                     if val == "time": #if time I want to exit
-                        print("time")
+                        print("time") #debug
                         time.sleep(120) #so the website we read from won't band as. that is true for all the sleep.
                         continue
                     time.sleep(45)
@@ -369,7 +410,7 @@ class SatNogsToSQL:
                         time.sleep(45)
                     print("bye") #debug
                     time.sleep(120)
-                time.sleep(7200) # 2 hours.
+                time.sleep(7200) # 2 hours wait.
         finally:
             #at end write the most current.
             with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))

@@ -44,7 +44,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
-                print(f"send: {json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8")}") #debug
                 # send to json of the data back.
                 self.wfile.write(json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8"))
                 return
@@ -57,11 +56,23 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # protocol addTop/satName={}?mostResent={}
             elif self.path.startswith("/addBottom/"):
                 html, oldest, newest = self.create_send(False) #isn't top
-                print(f"send: {json.dumps({"lestResent":oldest, "data":html}).encode("utf-8")}") #debug
                 # send to json of the data back.
                 self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
                 return
                 # protocol addBottom/satName={}?lestResent={}
+            elif self.path.startswith("/downloadData/"):
+                params = self.path.split("/")[-1].split("?")
+                params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params}
+                excel, file_name = DDIP.make_excel(params)
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                self.send_header('Content-Disposition', f'attachment; filename="{file_name}.xlsx"')
+                self.end_headers()
+                self.wfile.write(excel.getvalue())
+                excel.close()
+                print("hello")
+                return
+                #protocol: downloadData/type={typeOfDownload}?satName={}?limit={} or ?start={}?end={} or ?start={} or none.
         except Exception as e: #in case of an error send error
             print(f"error {e}")
             self.send_response(404)
@@ -72,9 +83,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         # get normal static files. default if it's not other stuff.
         if self.path == "/" or self.path == "":
             self.path = f"{website_folder}/currentWebsite.html" #have the current sats at selection and the main page.
-        else:
-            self.path = f"{website_folder}{self.path}"
-        print(f"Received request for: {self.path}")
+        else: self.path = f"{website_folder}{self.path}"
+        print(f"Changed request for: {self.path}")
         return super().do_GET()
 
 def https_server():
@@ -87,7 +97,7 @@ def https_server():
 
     # SSL Setup
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile="Certificate/cert.pem", keyfile="Certificate/key.pem") #get the Certificate
+    context.load_cert_chain(certfile="Certificate/cert_school.pem", keyfile="Certificate/key_school.pem") #get the Certificate
     # Wrap the socket (to be with SSL)
     httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
     httpd.serve_forever() #run the http until we can't

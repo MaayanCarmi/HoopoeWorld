@@ -1,7 +1,9 @@
 {
     "settings": {
-        "isDefaultLittleEndian": true,
+        "isDefaultBigEndian": false,
         "opcode": "0001",
+        "sizeof_header": 8,
+        "place_start_opcode": 5,
         "prime_key": "sat_time"
     },
     "subType":

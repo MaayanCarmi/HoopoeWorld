@@ -9,6 +9,7 @@
 </head>
 <body style="background-color: black">
     <script src="clock.js"></script>
+    <script src="dynamicFunctions.js"></script>
     <div class="container header">
         <select name="chooseSat" class="item selectOption">
             <option> Choose satellite </option>
@@ -233,6 +234,34 @@
             </div>
         </div>
 
+    </div>
+    <div id="openDownload"></div>
+    <button class="popupButton" onclick="openPopup()"></button>
+    <div class="popup" id="popup">
+        <div class="closeBtn" onclick="closePopup()">&times;</div>
+        <div>
+            <div id="title" class="title">Download data for: </div>
+            <p>
+                Choose type of download: 
+                <select id="chooseDownload" class="item selectDownloadType" onchange="downloadType(this)">
+                    <option value="StartToEndTime">Start to End Time</option>
+                    <option value="StartTime">Start Time</option>
+                    <option value="Limit">Limit</option>
+                    <option value="All"> All </option>
+                </select>
+
+            </p>
+            <div id="types">
+                <p>
+                    Enter start date: <input type="datetime-local" id="start-date" name="start-date" step="1" />
+                </p>
+                <p>
+                    Enter end date: <input type="datetime-local" id="end-date" name="end-date" step="1" /><br />
+                </p>
+            </div>
+            <button type="submit" onclick="sendDownloadRequest()">download</button>
+            <div class="error" id="error"></div>
+        </div>
     </div>
 </body>
 </html>

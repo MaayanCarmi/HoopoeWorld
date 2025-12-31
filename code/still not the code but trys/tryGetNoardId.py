@@ -55,5 +55,36 @@ def telem():
 # callsign = ''.join(chr(b >> 1) for b in src[:6])
 #
 # print(f"{callsign} : {frame}")
-x = datetime.fromisoformat("2025-12-28T03:38:02Z".replace("Z", "+00:00"))
-print(str(x))
+# x = datetime.fromisoformat("2025-12-28T03:38:02Z".replace("Z", "+00:00"))
+# print(str(x))
+
+string = """ <button class="popupButton" onclick="openPopup()"></button>
+ <div class="popup" id="popup">
+     <div class="closeBtn" onclick="closePopup()">&times;</div>
+     <div>
+         <div id="title" class="title">Download data for: </div>
+         <p>
+             Choose type of download: 
+             <select id="chooseDownload" class="item selectDownloadType" onchange="downloadType(this)">
+                 <option value="StartToEndTime">Start to End Time</option>
+                 <option value="StartTime">Start Time</option>
+                 <option value="Limit">Limit</option>
+                 <option value="All"> All </option>
+             </select>
+
+         </p>
+         <div id="types">
+             <p>
+                 Enter start date: <input type="datetime-local" id="start-date" name="start-date" step="1" />
+             </p>
+             <p>
+                 Enter end date: <input type="datetime-local" id="end-date" name="end-date" step="1" /><br />
+             </p>
+         </div>
+         <button type="submit" onclick="sendDownloadRequest()">download</button>
+         <div class="error" id="error"></div>
+     </div>
+ </div>"""
+string = "".join(x.strip() for x in string.split("\n"))
+string = string.replace('"', '\\"')
+print(string)
