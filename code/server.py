@@ -10,68 +10,91 @@ class ThreadedHTTPServer(socketserver.ThreadingMixIn, http.server.HTTPServer):
 
 class Handler(http.server.SimpleHTTPRequestHandler):
     def create_send(self, top):
-        params = self.path.split("/")[-1]
-        params = params.split("?")
-        sat_name = params[0].split("=")[1].replace("%20", " ")
-        most_resent = params[1].split("=")[1]
-        html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top)
+        """
+        create send for both top and bottom. create the params for the html.
+        :param top: a True or False if it's a request for top or bottom.
+        :return: the html to add, what the oldest got, what the newest got.
+        """
+        #if the code has an error the except id outside.
+        params = self.path.split("/")[-1] #get the params from the request.
+        params = params.split("?") #split according to the protocol
+        # also get and in case of a space add it.
+        sat_name, most_resent = params[0].split("=")[1].replace("%20", " "), params[1].split("=")[1]
+        html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top) #according to the function in decode.
+        #make headers.
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
         return html, oldest, newest
 
-    def do_GET(self):
-        print(f"Received request for: {self.path}")
-        if self.path.startswith("/chooseSatellite/"):
-            sat_name = self.path.split("/")[-1].replace("%20", " ")
-            html, oldest, newest = DDIP.make_for_html(sat_name, 0, True)
-            html = html.replace('class="containerPacket"', 'class="containerPacket" style=" margin-top: 6%"', 1)
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            print(f"send: {json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8")}")
-            self.wfile.write(json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8"))
-            return
-            # protocol chooseSatellite/satName
-        elif self.path.startswith("/addTop/"):
-            html, oldest, newest = self.create_send(True)
-            self.wfile.write(json.dumps({"mostResent":newest, "data":html}).encode("utf-8"))
-            return
-            # protocol addTop/satName={}?mostResent={}
-        elif self.path.startswith("/addBottom/"):
-            html, oldest, newest = self.create_send(False)
-            print(f"send: {json.dumps({"lestResent":oldest, "data":html}).encode("utf-8")}")
-            self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
-            return
-            # protocol addBottom/satName={}?lestResent={}
-        #todo: need to create the js for this. and add a lot of comments.
 
-        # get normal static files.
+    def do_GET(self):
+        """
+        do all the GET requests, it overwrites the function but at the end also used it.
+        :return: nothing
+        """
+        print(f"Received request for: {self.path}")
+        try:
+            # check request according to protocol
+            if self.path.startswith("/chooseSatellite/"):
+                # think of the create_send just for choose sat (without the start time because we never got a thing)
+                sat_name = self.path.split("/")[-1].replace("%20", " ")
+                html, oldest, newest = DDIP.make_for_html(sat_name, 0, True)
+                html = html.replace('class="containerPacket"', 'class="containerPacket" style=" margin-top: 6%"', 1)
+                self.send_response(200)
+                self.send_header("Content-type", "text/html")
+                self.end_headers()
+                print(f"send: {json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8")}") #debug
+                # send to json of the data back.
+                self.wfile.write(json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8"))
+                return
+                # protocol chooseSatellite/satName
+            elif self.path.startswith("/addTop/"):
+                html, oldest, newest = self.create_send(True) #is top
+                # send to json of the data back.
+                self.wfile.write(json.dumps({"mostResent":newest, "data":html}).encode("utf-8"))
+                return
+            # protocol addTop/satName={}?mostResent={}
+            elif self.path.startswith("/addBottom/"):
+                html, oldest, newest = self.create_send(False) #isn't top
+                print(f"send: {json.dumps({"lestResent":oldest, "data":html}).encode("utf-8")}") #debug
+                # send to json of the data back.
+                self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
+                return
+                # protocol addBottom/satName={}?lestResent={}
+        except Exception as e: #in case of an error send error
+            print(f"error {e}")
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write("had an error".encode())
+        #todo: I want to also create a request to get the data as excel.
+
+        # get normal static files. default if it's not other stuff.
         if self.path == "/" or self.path == "":
-            self.path = f"{website_folder}/currentWebsite.html"
-            #at the start of the program I create this to be from template and add the needed names to selection. (happened before)
-            #one will be saved as template "templateWebsite.html" and one as the "currentWebsite.html"
+            self.path = f"{website_folder}/currentWebsite.html" #have the current sats at selection and the main page.
         else:
             self.path = f"{website_folder}{self.path}"
         print(f"Received request for: {self.path}")
         return super().do_GET()
 
 def https_server():
-    print("hello")
+    """
+    https server thread. here I create the class and the start of the https
+    :return: None
+    """
     server_address = ('0.0.0.0', 443)
-    httpd = http.server.HTTPServer(server_address, Handler)
+    httpd = http.server.HTTPServer(server_address, Handler) #make it with the class above.
 
     # SSL Setup
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile="Certificate/cert_school.pem", keyfile="Certificate/key_school.pem")
+    context.load_cert_chain(certfile="Certificate/cert.pem", keyfile="Certificate/key.pem") #get the Certificate
     # Wrap the socket (to be with SSL)
     httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
-    httpd.serve_forever()
+    httpd.serve_forever() #run the http until we can't
 
 def main():
     try:
-        DDIP.create_tables()
-        # check it.
+        DDIP.create_tables() #make sure all the tables are created
         #Create the selection from the json and template. Used while the server is active reset each run.
         with open(r"webpage\templateWebsite.html", 'r') as file:
             website = file.read()
@@ -79,20 +102,20 @@ def main():
         with open(r"webpage\currentWebsite.html", 'w') as file:
             file.write(website)
 
-        with open("../jsons/newestTime.json", "r") as file:
-            packets_to_sql = DDIP.SatNogsToSQL(json.load(file))
+        try: #create class with the pass times or without.
+            with open("../jsons/newestTime.json", "r") as file:
+                packets_to_sql = DDIP.SatNogsToSQL(json.load(file))
+        except OSError: packets_to_sql = DDIP.SatNogsToSQL()
         https_thread = threading.Thread(target=https_server)
-        https_thread.start()
-        packets_to_sql.infinite_loop()
+        https_thread.start() #thread of https.
+        packets_to_sql.infinite_loop() #call the loop.
 
 
     finally:
-        try:
-            packets_to_sql.run = False
-            https_thread.join()
-        except Exception: pass
+        packets_to_sql.run = False
+        https_thread.join() #close it.
+        # It doesn't really matter if we have an error here. because the only way to have it's because of other error.
 
-        pass
 
 if __name__ == "__main__":
     main()

@@ -10,7 +10,11 @@ async function ChooseSat(choice) {
     if (isLoading) return;
     isLoading = true;
     choice = choice.value;
-    if (choice == "Choose satellite") return 0;
+    const placeHolder = document.getElementById("packets");
+    if (choice == "Choose satellite") {
+        placeHolder.innerHTML = "";
+        return 0;
+    }
     const url = "/chooseSatellite/" + choice;
     try {
         const response = await fetch(url);
@@ -21,7 +25,6 @@ async function ChooseSat(choice) {
         satName = choice;
         newestTime = data.mostResent;
         oldestTime = data.lestResent;
-        const placeHolder = document.getElementById("packets");
         placeHolder.innerHTML = data.data;
     }
     catch (error) {
