@@ -47,7 +47,8 @@
     align-self: center;
     color: aliceblue;
     text-align: center;
-    font-family: 'Levenim MT'
+    font-family: 'Levenim MT';
+    font-style: normal;
 }
 
 .clock {
@@ -140,6 +141,9 @@
     box-shadow: 11px 8px 17px 7px rgba(0, 0, 0, 0.4), inset 0px -2px 17px 7px rgb(83 83 83 / 27%);
     visibility: hidden;
     transition: transform 0.4s, top 0.4s;
+    color: #d1faff;
+    font-size: x-large;
+    font-style: oblique;
 }
 .open-popup {
     visibility: visible;
@@ -162,7 +166,7 @@ button[type=submit] {
     border: none;
     border-radius: 6px;
     text-align: center;
-    font-family: Arial;
+    font-family: cursive;
     font-size: 15px;
     cursor: pointer;
     box-shadow: 4px 5px 16px 0px rgb(0 0 0 / 73%);
