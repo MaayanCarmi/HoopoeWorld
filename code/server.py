@@ -79,7 +79,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(404)
             self.end_headers()
             self.wfile.write("had an error".encode())
-        #todo: I want to also create a request to get the data as excel.
 
         # get normal static files. default if it's not other stuff.
         if self.path == "/" or self.path == "":

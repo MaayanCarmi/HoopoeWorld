@@ -240,7 +240,7 @@ def make_excel(params):
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], unit='s')
             df[col] = df[col].dt.strftime('%d.%m.%Y %H:%M:%S')
-    df["raw"] = df["raw"].Hex() #big letters
+    df["raw"] = df["raw"].str.upper() #big letters
     output = io.BytesIO() #temporary place
     file_name = f'{params["satName"]}_{datetime.now().strftime("%d-%m-%Y")}' #create file name
     with pd.ExcelWriter(output, engine='openpyxl') as writer: #make the writer with the .xslx engine
@@ -300,7 +300,7 @@ def decode_data_for_sql(data, json_params, setting):
     :param setting: have the setting of the json
     :return: values for SQL INSERT
     """
-    i = setting["sizeof_header"] #where in the packet we start. (where the params are) again it's only for our sats. #todo change it to be more general
+    i = setting["sizeof_header"] #where in the packet we start. (where the data is)
     decode_to_sql = []
     for param in json_params:
         if param["type"] != "string": #if not string, I know the size os take the data there
@@ -336,10 +336,9 @@ def check_respond(response):
             raise TypeError("Non existing Token to satNogs. Please add (explanation in doc)")
     elif response.status_code == 429:
         print("read too much, wait a day and try again")
-        time.sleep(24 * 60 * 60)
+        time.sleep(24 * 60 * 60) #one day
         return False
     return response
-    #todo: I need to get to an error to see how it work exactly.
 
 class SatNogsToSQL:
     # IMPORTANT: satNogs doesn't like when we get too much in a day, so if it's not a new sat first get the csv and decrypt it.
