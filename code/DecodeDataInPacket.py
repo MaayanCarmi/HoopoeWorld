@@ -216,28 +216,35 @@ def make_for_html(sat_name, last_date, top):
     return html_code, data[-1][primary], data[0][primary] #else return
 
 def make_excel(params):
-    sql_filter = ""
+    """
+    make according to params and SQL an Excel table to send to client.
+    :param params: dict that 100% have type and satName. all the other are according to type.
+                    we can understand how to parse the request according to type.
+    :return: excelTable, file_name
+    """
+    sql_filter = "" #because it doesn't have to be a where filter and there can be no filter at all.
+    #get static for the function
     download_type = params["type"]
     json_format = SATELLITES[params["satName"]]["json"]
     primary_key = JSONS[json_format]["settings"]["prime_key"]
-    if download_type == "StartToEndTime":
+    if download_type == "StartToEndTime": #check between
         sql_filter = f"WHERE {params["start"]} < {primary_key} AND {params["end"]} > {primary_key}"
-    elif download_type == "StartTime":
+    elif download_type == "StartTime": #get from startTime up to current
         sql_filter = f"WHERE {params["start"]} < {primary_key}"
-    sql_query = f"SELECT * FROM {SATELLITES[params["satName"]]["table_name"]} {sql_filter} ORDER BY {primary_key} DESC "
-    if download_type == "Limit":
+    sql_query = f"SELECT * FROM {SATELLITES[params["satName"]]["table_name"]} {sql_filter} ORDER BY {primary_key} DESC " #make query
+    if download_type == "Limit": #add limit if have
         sql_query += f"LIMIT {params["limit"]}"
     with SATELLITES[params["satName"]]["threadLock"]:
-        df = pd.read_sql(sql_query, connection_sql)
-    for col in JSONS_FOR_HTML[json_format]["time_param"]:
+        df = pd.read_sql(sql_query, connection_sql) #read the sql according to pandas
+    for col in JSONS_FOR_HTML[json_format]["time_param"]: #chage format of unix_time to date-time format
         if col in df.columns:
             df[col] = pd.to_datetime(df[col], unit='s')
             df[col] = df[col].dt.strftime('%d.%m.%Y %H:%M:%S')
-    df["raw"] = df["raw"].Hex()
-    output = io.BytesIO()
-    file_name = f'{params["satName"]}_{datetime.now().strftime("%d-%m-%Y")}'
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name=file_name[:31])
+    df["raw"] = df["raw"].Hex() #big letters
+    output = io.BytesIO() #temporary place
+    file_name = f'{params["satName"]}_{datetime.now().strftime("%d-%m-%Y")}' #create file name
+    with pd.ExcelWriter(output, engine='openpyxl') as writer: #make the writer with the .xslx engine
+        df.to_excel(writer, index=False, sheet_name=file_name[:31]) #incase the file_name is bigger than possible, create excel
     return output, file_name
 
 #satNogs, save to SQL
@@ -314,15 +321,25 @@ def decode_data_for_sql(data, json_params, setting):
     decode_to_sql.append(data.hex()) #also add raw
     return decode_to_sql
 
-def check_respond(respond):
+def check_respond(response):
     """
     get the response from the server and needed to check we don't have 429 error or invalid token.
     if invalid need to raise an error else need to wait and then continue.
-    :param respond: the response from the satNogs.
-    :return: True/False.
+    :param response: the response from the satNogs.
+    :return: False or response.
     """
+    if response.status_code == 404:  raise TypeError("Can't read from satNogs. Maybe they change url.")
+    elif response.status_code == 401:
+        if response.json()["detail"] == "Invalid token.":
+            raise TypeError("Invalid Token to satNogs. Please change (explanation in doc)")
+        else:
+            raise TypeError("Non existing Token to satNogs. Please add (explanation in doc)")
+    elif response.status_code == 429:
+        print("read too much, wait a day and try again")
+        time.sleep(24 * 60 * 60)
+        return False
+    return response
     #todo: I need to get to an error to see how it work exactly.
-    ...
 
 class SatNogsToSQL:
     # IMPORTANT: satNogs doesn't like when we get too much in a day, so if it's not a new sat first get the csv and decrypt it.
@@ -391,7 +408,11 @@ class SatNogsToSQL:
             while self.run:
                 for norad_id in SatIds: #go through each sat that we have
                     url = f"https://db.satnogs.org/api/telemetry/?satellite={norad_id["noradId"]}"
-                    response = requests.get(url, headers=self.__headers) #ask for telemetry
+                    try:
+                        response = check_respond(requests.get(url, headers=self.__headers)) #ask for telemetry
+                        while not response: response = check_respond(requests.get(url, headers=self.__headers))
+                    except ConnectionError: raise TypeError("You aren't connect to the internet or something like that.")
+
                     data = response.json()
                     self.newest_dates[norad_id["satName"]], val = self.enter_packets(data) #get time and add to SQL
                     print("hi") #debug
@@ -401,7 +422,10 @@ class SatNogsToSQL:
                         continue
                     time.sleep(45)
                     while data["next"]: #if we have another page
-                        response = requests.get(data["next"], headers=self.__headers) #get this one also
+                        try:
+                            response = check_respond(requests.get(data["next"], headers=self.__headers)) #get this one also
+                            while not response: response = check_respond(requests.get(data["next"], headers=self.__headers))
+                        except ConnectionError: raise TypeError("You aren't connect to the internet or something like that.")
                         data = response.json() #do the same as before
                         val = self.enter_packets(data)
                         if val[1] == "time":

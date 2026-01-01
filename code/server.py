@@ -17,9 +17,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         """
         #if the code has an error the except id outside.
         params = self.path.split("/")[-1] #get the params from the request.
-        params = params.split("?") #split according to the protocol
+        params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params} #split according to the protocol
         # also get and in case of a space add it.
-        sat_name, most_resent = params[0].split("=")[1].replace("%20", " "), params[1].split("=")[1]
+        sat_name, most_resent = params["satName"], params["mostResent"] if top else params["lestResent"]
         html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top) #according to the function in decode.
         #make headers.
         self.send_response(200)
@@ -62,13 +62,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 # protocol addBottom/satName={}?lestResent={}
             elif self.path.startswith("/downloadData/"):
                 params = self.path.split("/")[-1].split("?")
-                params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params}
-                excel, file_name = DDIP.make_excel(params)
+                params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params} #get params
+                excel, file_name = DDIP.make_excel(params) #make excel
+                #make the needed headers that with them the client will know he needs to download it to the computer.
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
                 self.send_header('Content-Disposition', f'attachment; filename="{file_name}.xlsx"')
                 self.end_headers()
-                self.wfile.write(excel.getvalue())
+                self.wfile.write(excel.getvalue()) #send Excel file.
                 excel.close()
                 print("hello")
                 return
