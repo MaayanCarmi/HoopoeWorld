@@ -110,66 +110,34 @@ function checkForm() {
     return true;
 }
 
-async function downloadExcel(data, filename){
-    const blob = new Blob([data], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    }); // a .xslx file (that the type)
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-
-    // Clean up
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
-}
-
 async function sendDownloadRequest() {
     if (!checkForm()) return false;
     const choice = document.getElementById("chooseDownload").value;
-    let url = `/downloadData/type=${choice}?satName=${satName}`;
+    let url = `/downloadData/?type=${choice}&satName=${satName}`;
     switch (choice) {
         case "StartToEndTime":
             {
                 const start = Math.floor(document.getElementById("start-date").valueAsNumber / 1000); //I know for a fact it's not null
                 const end = Math.floor(document.getElementById("end-date").valueAsNumber / 1000);
-                url += `?start=${start}?end=${end}`;
+                url += `&start=${start}&end=${end}`;
                 break;
             }
         case "StartTime":
             {
                 const start = Math.floor(document.getElementById("start-date").valueAsNumber / 1000);
-                url += `?start=${start}`;
+                url += `&start=${start}`;
                 break;
             }
         case "Limit":
             {
                 const limit = document.getElementById("limit").valueAsNumber;
-                url += `?limit=${limit}`;
+                url += `&limit=${limit}`;
                 break;
             }
         case "All":
             break;
     }
-    try {
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error('HTTP error! status: ' + response.status);
-        }
-        const rawData = await response.blob();
-        const disposition = response.headers.get('Content-Disposition');
-        let fileName = 'download.xlsx'; // Fallback
-
-        if (disposition && disposition.includes('filename=')) {
-            fileName = disposition.split('filename=')[1].replaceAll('"', '');
-        }
-        downloadExcel(rawData, fileName);
-    }
-    catch (error) {
-        console.error('Error fetching data: ', error, message);
-    }
+    window.location.href = url;
     return true;
 }
 
@@ -178,7 +146,7 @@ async function ScrollDown() {
     if (isLoading) return;
     isLoading = true;
     const container = document.getElementById("packets");
-    const url = "/addBottom/satName=" + satName + "?lestResent=" + oldestTime;
+    const url = `/addBottom/?satName=${satName}&lestResent=${oldestTime}`;
     try {
         const response = await fetch(url);
         if (!response.ok) {
@@ -198,7 +166,7 @@ async function ScrollDown() {
 async function ScrollUp() {
     const container = document.getElementById("packets");
     if (satName == "Choose satellite") return;
-    const url = "/addTop/satName=" + satName + "?mostResent=" + newestTime;
+    const url = `/addTop/?satName=${satName}&mostResent=${newestTime}`;
     try {
         const response = await fetch(url);
         if (!response.ok) {

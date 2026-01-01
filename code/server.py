@@ -16,7 +16,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         :return: the html to add, what the oldest got, what the newest got.
         """
         #if the code has an error the except id outside.
-        params = self.path.split("/")[-1] #get the params from the request.
+        params = self.path.split("?")[-1].split("&") #get the params from the request.
         params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params} #split according to the protocol
         # also get and in case of a space add it.
         sat_name, most_resent = params["satName"], params["mostResent"] if top else params["lestResent"]
@@ -53,15 +53,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 # send to json of the data back.
                 self.wfile.write(json.dumps({"mostResent":newest, "data":html}).encode("utf-8"))
                 return
-            # protocol addTop/satName={}?mostResent={}
+                # protocol addTop/?satName={}&mostResent={}
             elif self.path.startswith("/addBottom/"):
                 html, oldest, newest = self.create_send(False) #isn't top
                 # send to json of the data back.
                 self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
                 return
-                # protocol addBottom/satName={}?lestResent={}
+                # protocol addBottom/?satName={}&lestResent={}
             elif self.path.startswith("/downloadData/"):
-                params = self.path.split("/")[-1].split("?")
+                params = self.path.split("?")[-1].split("&")
                 params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params} #get params
                 excel, file_name = DDIP.make_excel(params) #make excel
                 #make the needed headers that with them the client will know he needs to download it to the computer.
@@ -73,7 +73,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 excel.close()
                 print("hello")
                 return
-                #protocol: downloadData/type={typeOfDownload}?satName={}?limit={} or ?start={}?end={} or ?start={} or none.
+                #protocol: downloadData/?type={typeOfDownload}&satName={}&limit={} or &start={}&end={} or &start={} or none.
         except Exception as e: #in case of an error send error
             print(f"error {e}")
             self.send_response(404)
