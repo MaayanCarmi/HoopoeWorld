@@ -3,6 +3,7 @@
     display: flow-root;
 }
 
+/*a flex continer*/
 .container {
     width: 100%;
     display: flex;
@@ -23,6 +24,7 @@
     left: 0;
 }
 
+/*the select satellite options*/
 .selectOption {
     font-family: 'Times New Roman';
     color: black;
@@ -36,9 +38,9 @@
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
+/*for the imgs*/
 .icon {
     align-self: center;
-
 }
 
 .title {
@@ -51,6 +53,7 @@
     font-style: normal;
 }
 
+/*display clock*/
 .clock {
     align-content: center;
     color: white;
@@ -62,6 +65,7 @@
     font-size: x-large;
 }
 
+/*the container of each packet (have raw and subs inside)*/
 .containerPacket {
     font-family: 'Times New Roman';
     color: black;
@@ -75,6 +79,7 @@
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
+/*the box that have the raw values.*/
 .divRaw {
     margin: 1%;
     background-color: white;
@@ -87,6 +92,7 @@
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
 }
 
+/*the small white box for each subsystem*/
 .containerSub {
     font-family: 'Times New Roman';
     color: black;
@@ -103,6 +109,7 @@
     font-weight: 600;
 }
 
+/*popup button*/
 .popupButton {
     position: fixed;
     bottom: 2%;
@@ -125,6 +132,8 @@
 .popupButton:active {
     transform: scale(0.95);
 }
+
+/*popup window*/
 .popup {
     position: fixed;
     top: 0;
