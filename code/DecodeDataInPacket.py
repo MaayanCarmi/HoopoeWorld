@@ -397,7 +397,6 @@ class SatNogsToSQL:
             sql_query = f"INSERT OR IGNORE INTO {SATELLITES[sat_name]['table_name']} VALUES ({" ,".join([str(x) if type(x) != str else f"'{x}'" for x in values])});"
             with SATELLITES[sat_name]["threadLock"]: #make sure we can
                 SATELLITES[sat_name]["cursor"].execute(sql_query)
-                connection_sql.commit() #save it in SQL
         return str(datetime.fromisoformat(results[0]["timestamp"].replace("Z", "+00:00"))), ret_val  # need to add the check for the time. when I get there I should stop the loop and only do what's before. (by if == then)
 
     def infinite_loop(self):
@@ -415,13 +414,15 @@ class SatNogsToSQL:
                     except ConnectionError: raise TypeError("You aren't connect to the internet or something like that.")
 
                     data = response.json()
-                    self.newest_dates[norad_id["satName"]], val = self.enter_packets(data) #get time and add to SQL
+                    times, val = self.enter_packets(data) #get time and add to SQL
                     print("hi") #debug
                     if val == "time": #if time I want to exit
                         print("time") #debug
+                        self.newest_dates[norad_id["satName"]] = times
+                        connection_sql.commit()  # save it in SQL
                         time.sleep(120) #so the website we read from won't band as. that is true for all the sleep.
                         continue
-                    time.sleep(45)
+                    time.sleep(20)
                     while data["next"]: #if we have another page
                         try:
                             response = check_respond(requests.get(data["next"], headers=self.__headers)) #get this one also
@@ -432,7 +433,9 @@ class SatNogsToSQL:
                         if val[1] == "time":
                             print("time")
                             break
-                        time.sleep(45)
+                        time.sleep(20)
+                    self.newest_dates[norad_id["satName"]] = times
+                    connection_sql.commit()  # save it in SQL
                     print("bye") #debug
                     time.sleep(120)
                 time.sleep(7200) # 2 hours wait.
