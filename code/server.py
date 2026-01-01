@@ -20,7 +20,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params} #split according to the protocol
         # also get and in case of a space add it.
         sat_name, most_resent = params["satName"], params["mostResent"] if top else params["lestResent"]
-        html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top) #according to the function in decode.
+        limit = 25 if not top else 0
+        html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top, limit) #according to the function in decode.
         #make headers.
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -39,7 +40,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             if self.path.startswith("/chooseSatellite/"):
                 # think of the create_send just for choose sat (without the start time because we never got a thing)
                 sat_name = self.path.split("/")[-1].replace("%20", " ")
-                html, oldest, newest = DDIP.make_for_html(sat_name, 0, True)
+                html, oldest, newest = DDIP.make_for_html(sat_name, 0, True, 25)
                 html = html.replace('class="containerPacket"', 'class="containerPacket" style=" margin-top: 6%"', 1)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")

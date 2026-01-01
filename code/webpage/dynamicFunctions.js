@@ -207,7 +207,7 @@ async function ScrollDown() {
 async function ScrollUp() {
     const container = document.getElementById("packets");
     if (satName == "Choose satellite") return;
-    const url = `/addTop/?satName=${satName}&mostResent=${newestTime}`; //to get the packets that are just before what I have. (also just 25)
+    const url = `/addTop/?satName=${satName}&mostResent=${newestTime}`; //to get the packets that are just before what I have.
     try {
         const response = await fetch(url);
         if (!response.ok) {

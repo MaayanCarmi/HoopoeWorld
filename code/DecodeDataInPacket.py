@@ -173,16 +173,18 @@ def create_options():
         ret += f"<option>{sat}</option>\n\t\t\t"
     return ret
 
-def make_for_html(sat_name, last_date, top):
+def make_for_html(sat_name, last_date, top, limit=0):
     """
     take from SQL and put it in the format for the html. it's added to what I already have.
     :param sat_name: name of sat as written in SATELLITES
     :param last_date: in time unix. say from where I need to take. (as time come) - type(str) but have int.
     :param top: is for the top of the page or for the bottom. according to that I know if I gave the min I have or the max
+    :param limit: how many packet I take. if 0 take all.
     :return: build for html, min_date, max_date <- know what to take according to top or bottom.
     """
+    limit = f"LIMIT {limit}" if limit != 0 else ""
     sat: dict = SATELLITES[sat_name] #get dict of the sat.
-    sql_query = f"SELECT * FROM {sat['table_name']} WHERE {JSONS_FOR_HTML[sat['json']]['primaryKey']} {'>' if top else '<'} {last_date} ORDER BY {JSONS_FOR_HTML[sat['json']]['primaryKey']} DESC LIMIT 25"
+    sql_query = f"SELECT * FROM {sat['table_name']} WHERE {JSONS_FOR_HTML[sat['json']]['primaryKey']} {'>' if top else '<'} {last_date} ORDER BY {JSONS_FOR_HTML[sat['json']]['primaryKey']} DESC {limit}"
     with sat["threadLock"]: # when I can execute the query.
         sat["cursor"].execute(sql_query)
         data = sat["cursor"].fetchall()
