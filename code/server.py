@@ -41,7 +41,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 # think of the create_send just for choose sat (without the start time because we never got a thing)
                 sat_name = self.path.split("/")[-1].replace("%20", " ")
                 html, oldest, newest = DDIP.make_for_html(sat_name, 0, True, 25)
-                html = html.replace('class="containerPacket"', 'class="containerPacket" style=" margin-top: 6%"', 1)
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()

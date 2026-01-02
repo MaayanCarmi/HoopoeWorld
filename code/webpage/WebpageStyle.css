@@ -191,11 +191,6 @@ button[type = submit]:hover {
     color: #99bcf9;
 }
 
-
-label{
-
-}
-
 input[type=datetime-local] {
     cursor: text;
 }
