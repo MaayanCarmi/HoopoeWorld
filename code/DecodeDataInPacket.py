@@ -173,6 +173,11 @@ def create_options():
         ret += f"<option>{sat}</option>\n\t\t\t"
     return ret
 
+def get_raw(raw):
+    """make the raw data look more like hexDump."""
+    return " ".join([raw[i - 2: i] if i % 16 != 0 else "".join(f"{raw[i - 2: i]}&nbsp&nbsp" if i % (16*5) != 0 else f"{raw[i - 2: i]}</br>") for i in range(2, len(raw), 2)] + [raw[len(raw) - 2:]])
+  #  return raw
+
 def make_for_html(sat_name, last_date, top, limit=0):
     """
     take from SQL and put it in the format for the html. it's added to what I already have.
@@ -195,7 +200,7 @@ def make_for_html(sat_name, last_date, top, limit=0):
     del json_sorted["primaryKey"], json_sorted["time_param"] #remove them so I will not look at that.
     for row in data: #go over each row that I got from the SQL (have 25 each time)
         #the start of the full part and the raw container
-        html_code += f'<div class="containerPacket">\n<div class="divRaw">\n<div style="text-align: center"><u><b>Hex raw:</b></u></div>\n{row["raw"].upper()}</div>\n'
+        html_code += f'<div class="containerPacket">\n<div class="divRaw">\n<div style="text-align: center"><u><b>Hex raw:</b></u></div>\n<div class="divHexRaw">{get_raw(row["raw"].upper())}</div></div>\n'
         for i in range(1, len(json_sorted) // 5 + 1): #going the len divided by 5
             html_code += '<div class="container">\n'
             for k in range(5): #making the 5 small parts that are in a row (more will go down)
@@ -441,6 +446,7 @@ class SatNogsToSQL:
                 time.sleep(7200) # 2 hours wait.
         finally:
             #at end write the most current.
+            connection_sql.commit()
             with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
 
     # def infinite_loop(self):
@@ -463,7 +469,9 @@ def main():
     # with open("../jsons/newestTime.json", "r") as file:
     #     packets_to_sql = SatNogsToSQL(json.load(file))
     # packets_to_sql.infinite_loop()
-
+    # s = "0000000E00018D0000000000000000000000000000000000080000D6AF4100EEA34100372F42002C594100F0274100A6B341EE555A6900F0FE420000000000A0F17700B0F2340000000058000000CAF008000D000000FFFFFFFFFFFFFFFFA99FD822E3B6D72200000000D083334012E645690000FFFFFFFF023100000056028B41115F924114EDDE3D4AE40A3FC6593CC50000F0C2"
+    # print(" ".join(s[i: i + 2] for i in range(0, len(s) - 1, 2)))
+    # print(get_raw(s))
     #check it.
     pass
 
