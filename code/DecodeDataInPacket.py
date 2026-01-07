@@ -235,11 +235,17 @@ def make_excel(params):
     json_format = SATELLITES[params["satName"]]["json"]
     primary_key = JSONS[json_format]["settings"]["prime_key"]
     if download_type == "StartToEndTime": #check between
+        try: int(params["start"]) + int(params["end"])
+        except Exception: raise TypeError("got something that is not int")
         sql_filter = f"WHERE {params["start"]} < {primary_key} AND {params["end"]} > {primary_key}"
     elif download_type == "StartTime": #get from startTime up to current
+        try: int(params["start"])
+        except Exception: raise TypeError("got something that is not int")
         sql_filter = f"WHERE {params["start"]} < {primary_key}"
     sql_query = f"SELECT * FROM {SATELLITES[params["satName"]]["table_name"]} {sql_filter} ORDER BY {primary_key} DESC " #make query
     if download_type == "Limit": #add limit if have
+        try: int(params["limit"])
+        except Exception: raise TypeError("got something that is not int")
         sql_query += f"LIMIT {params["limit"]}"
     with SATELLITES[params["satName"]]["threadLock"]:
         df = pd.read_sql(sql_query, connection_sql) #read the sql according to pandas

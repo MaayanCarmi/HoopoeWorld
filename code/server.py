@@ -19,7 +19,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         params = self.path.split("?")[-1].split("&") #get the params from the request.
         params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params} #split according to the protocol
         # also get and in case of a space add it.
-        sat_name, most_resent = params["satName"], params["mostResent"] if top else params["lestResent"]
+        sat_name, most_resent = params["satName"], params["mostResent"] if top else params["leastResent"]
         limit = 25 if not top else 0
         html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top, limit) #according to the function in decode.
         #make headers.
@@ -45,7 +45,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
                 # send to json of the data back.
-                self.wfile.write(json.dumps({"mostResent":newest, "lestResent":oldest, "data":html}).encode("utf-8"))
+                self.wfile.write(json.dumps({"mostResent":newest, "leastResent":oldest, "data":html}).encode("utf-8"))
                 return
                 # protocol chooseSatellite/satName
             elif self.path.startswith("/addTop/"):
@@ -57,9 +57,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             elif self.path.startswith("/addBottom/"):
                 html, oldest, newest = self.create_send(False) #isn't top
                 # send to json of the data back.
-                self.wfile.write(json.dumps({"lestResent":oldest, "data":html}).encode("utf-8"))
+                self.wfile.write(json.dumps({"leastResent":oldest, "data":html}).encode("utf-8"))
                 return
-                # protocol addBottom/?satName={}&lestResent={}
+                # protocol addBottom/?satName={}&leastResent={}
             elif self.path.startswith("/downloadData/"):
                 params = self.path.split("?")[-1].split("&")
                 params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params} #get params
@@ -115,7 +115,7 @@ def main():
         try: #create class with the pass times or without.
             with open("../jsons/newestTime.json", "r") as file:
                 packets_to_sql = DDIP.SatNogsToSQL(json.load(file))
-        except OSError: packets_to_sql = DDIP.SatNogsToSQL()
+        except OSError or Exception: packets_to_sql = DDIP.SatNogsToSQL()
         https_thread = threading.Thread(target=https_server)
         https_thread.start() #thread of https.
         packets_to_sql.infinite_loop() #call the loop.

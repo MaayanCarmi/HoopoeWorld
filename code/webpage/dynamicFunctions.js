@@ -31,7 +31,7 @@ async function ChooseSat(choice) {
         //put global params
         satName = choice;
         newestTime = data.mostResent;
-        oldestTime = data.lestResent;
+        oldestTime = data.leastResent;
         placeHolder.innerHTML = data.data; //place the packets in place
         //add the option for download
         download.innerHTML = `<button class="popupButton" onclick="openPopup()"></button><div class="popup" id="popup"><div class="closeBtn" onclick="closePopup()">&times;</div><div><div id="title" class="title">Download data for ${satName}</div><p>Choose type of download:<select id="chooseDownload" class="item selectDownloadType" onchange="downloadType(this)"><option value="StartToEndTime">Start to End Time</option><option value="StartTime">Start Time</option><option value="Limit">Limit</option><option value="All"> All </option></select></p><div id="types"><p>Enter start date: <input type="datetime-local" id="start-date" name="start-date" step="1" /></p><p>Enter end date: <input type="datetime-local" id="end-date" name="end-date" step="1" /><br /></p></div><button type="submit" onclick="sendDownloadRequest()">download</button><div class="error" id="error"></div></div></div>`;
@@ -103,7 +103,7 @@ function checkForm() {
             var startTime = document.getElementById("start-date").value;
             var endTime = document.getElementById("end-date").value;
             if (checkNull(startTime) || checkNull(endTime)) {
-                errorPlace.innerHTML = "Error: don't have at lest one time. Need to add";
+                errorPlace.innerHTML = "Error: don't have at least one time. Need to add";
                 return false;
             }
             if (startTime > endTime) {
@@ -118,7 +118,7 @@ function checkForm() {
         case "StartTime":
             var startTime = document.getElementById("start-date").value;
             if (checkNull(startTime)) {
-                errorPlace.innerHTML = "Error: don't have at lest start time. Need to add";
+                errorPlace.innerHTML = "Error: don't have at least start time. Need to add";
                 return false;
             }
             if (startTime < "1970-01-01T00:00") { //because of time_unix
@@ -183,14 +183,14 @@ async function ScrollDown() {
     if (isLoading) return; //same check as chooseSat
     isLoading = true;
     const container = document.getElementById("packets");
-    const url = `/addBottom/?satName=${satName}&lestResent=${oldestTime}`; //to get the 25 packets that are just after the oldest I have.
+    const url = `/addBottom/?satName=${satName}&leastResent=${oldestTime}`; //to get the 25 packets that are just after the oldest I have.
     try {
         const response = await fetch(url);
         if (!response.ok) { //check for an error
             throw new Error('HTTP error! status: ' + response.status);
         }
         const data = await response.json();
-        oldestTime = data.lestResent; //change the oldest presented time
+        oldestTime = data.leastResent; //change the oldest presented time
         container.insertAdjacentHTML('beforeend', data.data); //add to the end of the div
     }
     catch (error) {
