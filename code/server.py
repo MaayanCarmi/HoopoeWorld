@@ -82,7 +82,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         # get normal static files. default if it's not other stuff.
         if self.path == "/" or self.path == "":
-            self.path = f"{website_folder}/currentWebsite.html" #have the current sats at selection and the main page.
+            self.path = f"{website_folder}/hoopoeWorld.html" #have the current sats at selection and the main page.
         else: self.path = f"{website_folder}{self.path}"
         print(f"Changed request for: {self.path}")
         return super().do_GET()
@@ -109,7 +109,7 @@ def main():
         with open(r"webpage\templateWebsite.html", 'r') as file:
             website = file.read()
         website = website.replace("<!--Server-->", DDIP.create_options())
-        with open(r"webpage\currentWebsite.html", 'w') as file:
+        with open(r"webpage\hoopoeWorld.html", 'w') as file:
             file.write(website)
 
         try: #create class with the pass times or without.
@@ -124,6 +124,7 @@ def main():
     finally:
         packets_to_sql.run = False
         https_thread.join() #close it.
+        DDIP.connection_sql.close()
         # It doesn't really matter if we have an error here. because the only way to have it's because of other error.
 
 

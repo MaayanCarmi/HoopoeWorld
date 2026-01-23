@@ -1,0 +1,38 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>HoopoeWorld</title>
+    <link rel="icon" type="image/x-icon" href="Images\favicon.png?v=2" />
+    <link rel="stylesheet" href="WebpageStyle.css" />
+</head>
+<body style="background-color: black">
+    <script src="clock.js"></script>
+    <script src="dynamicFunctions.js"></script>
+    <div class="container header">
+        <select id="chooseSat" class="item selectOption" onchange="ChooseSat(this)">
+            <option> Choose satellite </option>
+            <option>tevel 11</option>
+			<option>tevel 14</option>
+			<option>tevel 16</option>
+			<option>tevel 19</option>
+			
+        </select>
+        <div class="container title">
+            <img src="Images\favicon.png" height="70" class="icon" style="margin-left: 1%" />
+            <div class="icon title">HoopoeWorld</div>
+            <img src="Images\favicon.png" height="70" style="align-self: center; transform: scaleX(-1); margin-right: 1%" /> <!--making mirror effect-->
+
+        </div>
+        <div class="item clock" id="clock"></div>
+    </div>
+    <div id="packets" style="margin-top: 6%">
+        <!--data from server-->
+    </div>
+    <div id="openDownload">
+        <!--only when we have a sat.-->
+    </div>
+
+</body>
+</html>

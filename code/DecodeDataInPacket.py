@@ -362,6 +362,7 @@ class SatNogsToSQL:
         token = '935188971e64257d0736b4f89f575791312226fb'
         self.__headers = {'Authorization': f'Token {token}'}
         self.run = True
+        self.__write_cursor = connection_sql.cursor()
 
     def check_packet(self, packet, timestamp):
         """
@@ -406,8 +407,7 @@ class SatNogsToSQL:
             values = decode_data_for_sql(packet, json_file["subType"]["params"], json_file["settings"])
             #change to SQL insert values format.
             sql_query = f"INSERT OR IGNORE INTO {SATELLITES[sat_name]['table_name']} VALUES ({" ,".join([str(x) if type(x) != str else f"'{x}'" for x in values])});"
-            with SATELLITES[sat_name]["threadLock"]: #make sure we can
-                SATELLITES[sat_name]["cursor"].execute(sql_query)
+            self.__write_cursor.execute(sql_query)
         return str(datetime.fromisoformat(results[0]["timestamp"].replace("Z", "+00:00"))), ret_val  # need to add the check for the time. when I get there I should stop the loop and only do what's before. (by if == then)
 
     def infinite_loop(self):
