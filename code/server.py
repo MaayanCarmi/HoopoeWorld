@@ -21,7 +21,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         # also get and in case of a space add it.
         sat_name, most_resent = params["satName"], params["mostResent"] if top else params["leastResent"]
         limit = 25 if not top else 0
-        html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top, limit) #according to the function in decode.
+        html, oldest, newest = DDIP.make_for_html(sat_name, most_resent, top, limit, int(params["width"])) #according to the function in decode.
         #make headers.
         self.send_response(200)
         self.send_header("Content-type", "text/html")
@@ -38,8 +38,10 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             # check request according to protocol
             if self.path.startswith("/chooseSatellite/"):
                 # think of the create_send just for choose sat (without the start time because we never got a thing)
-                sat_name = self.path.split("/")[-1].replace("%20", " ")
-                html, oldest, newest = DDIP.make_for_html(sat_name, 0, True, 25)
+                params = self.path.split("?")[-1].split("&")  # get the params from the request.
+                params = {param.split("=")[0]: param.split("=")[1].replace("%20", " ") for param in params}
+                sat_name = params["satName"]
+                html, oldest, newest = DDIP.make_for_html(sat_name, 0, True, 25, int(params["width"]))
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
@@ -70,7 +72,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(excel.getvalue()) #send Excel file.
                 excel.close()
-                print("hello")
                 return
                 #protocol: downloadData/?type={typeOfDownload}&satName={}&limit={} or &start={}&end={} or &start={} or none.
         except Exception as e: #in case of an error send error

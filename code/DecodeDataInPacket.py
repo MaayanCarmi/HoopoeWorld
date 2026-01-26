@@ -1,5 +1,5 @@
 __author__ = 'Maayan'
-import json, threading, sqlite3, requests
+import json, threading, sqlite3, requests, math
 import time, csv, io
 from struct import unpack
 from datetime import datetime
@@ -173,20 +173,24 @@ def create_options():
         ret += f"<option>{sat}</option>\n\t\t\t"
     return ret
 
-def get_raw(raw):
+def get_raw(raw, count):
     """make the raw data look more like hexDump."""
-    return " ".join([raw[i - 2: i] if i % 16 != 0 else "".join(f"{raw[i - 2: i]}&nbsp&nbsp" if i % (16*5) != 0 else f"{raw[i - 2: i]}</br>") for i in range(2, len(raw), 2)] + [raw[len(raw) - 2:]])
+    return " ".join([raw[i - 2: i] if i % 16 != 0 else "".join(f"{raw[i - 2: i]}&nbsp&nbsp" if i % (16*count) != 0 else f"{raw[i - 2: i]}</br>") for i in range(2, len(raw), 2)] + [raw[len(raw) - 2:]])
   #  return raw
 
-def make_for_html(sat_name, last_date, top, limit=0):
+def make_for_html(sat_name, last_date, top, limit=0, width=1500):
     """
     take from SQL and put it in the format for the html. it's added to what I already have.
+    :param width: the size of the windows when opened
     :param sat_name: name of sat as written in SATELLITES
     :param last_date: in time unix. say from where I need to take. (as time come) - type(str) but have int.
     :param top: is for the top of the page or for the bottom. according to that I know if I gave the min I have or the max
     :param limit: how many packet I take. if 0 take all.
     :return: build for html, min_date, max_date <- know what to take according to top or bottom.
     """
+    #how many in a row.
+    count = math.ceil(width / 300) if width / 300 - math.floor(width) >= 0.8 else math.floor(width / 300)
+    width = 100 // count - 3
     limit = f"LIMIT {limit}" if limit != 0 else ""
     sat: dict = SATELLITES[sat_name] #get dict of the sat.
     sql_query = f"SELECT * FROM {sat['table_name']} WHERE {JSONS_FOR_HTML[sat['json']]['primaryKey']} {'>' if top else '<'} {last_date} ORDER BY {JSONS_FOR_HTML[sat['json']]['primaryKey']} DESC {limit}"
@@ -200,24 +204,26 @@ def make_for_html(sat_name, last_date, top, limit=0):
     del json_sorted["primaryKey"], json_sorted["time_param"] #remove them so I will not look at that.
     for row in data: #go over each row that I got from the SQL (have 25 each time)
         #the start of the full part and the raw container
-        html_code += f'<div class="containerPacket">\n<div class="divRaw">\n<div style="text-align: center"><u><b>Hex raw:</b></u></div>\n<div class="divHexRaw">{get_raw(row["raw"].upper())}</div></div>\n'
-        for i in range(1, len(json_sorted) // 5 + 1): #going the len divided by 5
+        html_code += f'<div class="containerPacket">\n<div class="divRaw">\n<div style="text-align: center"><u><b>Hex raw:</b></u></div>\n<div class="divHexRaw">{get_raw(row["raw"].upper(), count)}</div></div>\n'
+        already_did = 0
+        for i in range(1, len(json_sorted) // count + 1): #going the len divided by count
             html_code += '<div class="container">\n'
-            for k in range(5): #making the 5 small parts that are in a row (more will go down)
-                html_code += f'<div class="containerSub">\n<div class="titleSub">{list(json_sorted.keys())[i*k]}</div>\n<hr />\n'
+            for k in range(count): #making the count small parts that are in a row (more will go down)
+                html_code += f'<div class="containerSub" style="width:{width}%">\n<div class="titleSub">{list(json_sorted.keys())[i*k]}</div>\n<hr />\n'
                 for param_name in json_sorted[list(json_sorted.keys())[i*k]]:
                     html_code += f'<u>{param_name}:</u> {row[param_name] if param_name not in time_params else datetime.fromtimestamp(row[param_name]).strftime("%d.%m.%Y %H:%M:%S")}<br />\n'
                 html_code += '</div"></div>\n'
+                already_did += 1
             html_code += '</div>\n'
-            # if len is not divided by 5, going at the end for the part that is left
-            if len(json_sorted) % 5 != 0 and i == (len(json_sorted) // 5):
-                html_code += '<div class="container">\n'
-                for k in range(len(json_sorted) % 5): #how much is left
-                    html_code += f'<div class="containerSub">\n<div class="titleSub">{list(json_sorted.keys())[i * k]}</div>\n<hr />\n'
-                    for param_name in json_sorted[list(json_sorted.keys())[i * k + 5]]:
-                        html_code += f'<u>{param_name}:</u> {row[param_name] if param_name not in time_params else datetime.fromtimestamp(row[param_name]).strftime("%d.%m.%Y %H:%M:%S")}<br />\n'
-                    html_code += '</div">\n'
-                html_code += '</div>\n'
+        # if len is not divided by count, going at the end for the part that is left
+        if len(json_sorted) % count != 0:
+            html_code += '<div class="container">\n'
+            for k in range(len(json_sorted) % count): #how much is left
+                html_code += f'<div class="containerSub" style="width:{width}%">\n<div class="titleSub">{list(json_sorted.keys())[k + already_did]}</div>\n<hr />\n'
+                for param_name in json_sorted[list(json_sorted.keys())[k + already_did]]:
+                    html_code += f'<u>{param_name}:</u> {row[param_name] if param_name not in time_params else datetime.fromtimestamp(row[param_name]).strftime("%d.%m.%Y %H:%M:%S")}<br />\n'
+                html_code += '</div"></div>\n'
+            html_code += '</div>\n'
         html_code += '</div>\n'
     if not data: return "", last_date, last_date #if got nothing
     return html_code, data[-1][primary], data[0][primary] #else return

@@ -3,6 +3,7 @@ let newestTime = 0;
 let oldestTime = 0;
 let isLoading = false;
 const TWO_HOURS = 2 * 60 * 60 * 1000; //in millisecond.
+const WINDOW_WIDTH = window.innerWidth;
 
 /**
  * onchange function that when we change a satellite it will ask for the most current data of this sat.
@@ -21,7 +22,7 @@ async function ChooseSat(choice) {
         download.innerHTML = "";
         return 0;
     }
-    const url = "/chooseSatellite/" + choice;
+    const url = `/chooseSatellite/?satName=${choice}&width=${WINDOW_WIDTH}`;
     try {
         const response = await fetch(url); //try to get data from server
         if (!response.ok) {
@@ -183,7 +184,7 @@ async function ScrollDown() {
     if (isLoading) return; //same check as chooseSat
     isLoading = true;
     const container = document.getElementById("packets");
-    const url = `/addBottom/?satName=${satName}&leastResent=${oldestTime}`; //to get the 25 packets that are just after the oldest I have.
+    const url = `/addBottom/?satName=${satName}&leastResent=${oldestTime}&width=${WINDOW_WIDTH}`; //to get the 25 packets that are just after the oldest I have.
     try {
         const response = await fetch(url);
         if (!response.ok) { //check for an error
@@ -207,7 +208,7 @@ async function ScrollDown() {
 async function ScrollUp() {
     const container = document.getElementById("packets");
     if (satName == "Choose satellite") return;
-    const url = `/addTop/?satName=${satName}&mostResent=${newestTime}`; //to get the packets that are just before what I have.
+    const url = `/addTop/?satName=${satName}&mostResent=${newestTime}&width=${WINDOW_WIDTH}`; //to get the packets that are just before what I have.
     try {
         const response = await fetch(url);
         if (!response.ok) {
