@@ -1,0 +1,223 @@
+﻿body {
+    background-image: url('Images/5.png');
+    display: flow-root;
+}
+
+/*a flex continer*/
+.container {
+    width: 100%;
+    display: flex;
+}
+
+.item {
+    width: 20%;
+    height: 60px;
+    text-align: center;
+}
+
+.header {
+    background-color: midnightblue;
+    color: azure;
+    position: fixed;
+    height: 70px;
+    top: 0;
+    left: 0;
+}
+
+/*the select satellite options*/
+.selectOption {
+    font-family: 'Times New Roman';
+    color: black;
+    background-color: aliceblue;
+    height: 50px;
+    border-radius: 8px;
+    align-self: center;
+    margin: 10px;
+    padding: 5px;
+    font-size: x-large;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+/*for the imgs*/
+.icon {
+    align-self: center;
+}
+
+.title {
+    flex-grow: 1;
+    font-size: 40px;
+    align-self: center;
+    color: aliceblue;
+    text-align: center;
+    font-family: 'Levenim MT';
+    font-style: normal;
+}
+
+/*display clock*/
+.clock {
+    align-content: center;
+    color: white;
+    font-family: 'Times New Roman';
+    height: 50px;
+    align-self: center;
+    margin: 10px;
+    padding: 5px;
+    font-size: x-large;
+}
+
+/*the container of each packet (have raw and subs inside)*/
+.containerPacket {
+    font-family: 'Times New Roman';
+    color: black;
+    background-color: aliceblue;
+    width: 90%;
+    border-radius: 8px;
+    margin-top: 1%;
+    margin-left: 5%;
+    padding: 5px;
+    font-size: x-large;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+/*the box that have the raw values.*/
+.divRaw {
+    margin: 1%;
+    background-color: white;
+    font-family: "Times New Roman";
+    color: black;
+    align-content: center;
+    align-self: center;
+    font-size: x-large;
+    overflow-wrap: break-word;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.divHexRaw {
+    margin-left: 2%;
+    font-family: "consolas";
+    font-size: large;
+}
+
+/*the small white box for each subsystem*/
+.containerSub {
+    font-family: 'Times New Roman';
+    color: black;
+    background-color: white;
+    width: 17%;
+    margin: 1%;
+    padding: 5px;
+    font-size: large;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.titleSub {
+    text-align: center;
+    font-weight: 600;
+}
+
+/*popup button*/
+.popupButton {
+    position: fixed;
+    bottom: 2%;
+    right: 1%;
+    border-radius: 50%;
+    box-shadow: 0px 8px 16px 0px rgb(72, 142, 252, 0.4);
+    height: 50px;
+    width: 50px;
+    align-items: center;
+    background-image: url("Images/downloadImg.svg");
+    background-size: contain;
+    cursor: pointer;
+    border-color: azure;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.popupButton:hover {
+    transform: translateY(-10px);
+    box-shadow: 0px 12px 20px 5px rgb(72, 142, 252, 0.4);
+}
+.popupButton:active {
+    transform: scale(0.95);
+}
+
+/*popup window*/
+.popup {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.1);
+    justify-content: center;
+    background: rgba(52, 66, 105, 0.6);
+    border-radius: 10px;
+    padding: 10px;
+    padding-top: 5px;
+    width: 40%;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    box-shadow: 11px 8px 17px 7px rgba(0, 0, 0, 0.4), inset 0px -2px 17px 7px rgb(83 83 83 / 27%);
+    visibility: hidden;
+    transition: transform 0.4s, top 0.4s;
+    color: #d1faff;
+    font-size: x-large;
+    font-style: oblique;
+}
+.open-popup {
+    visibility: visible;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.closeBtn {
+    color: aliceblue;
+    font-size: x-large;
+    text-align: right;
+    cursor: pointer;
+}
+
+/*submit*/
+button[type=submit] {
+    background-color: #99bcf9;
+    color: #001850;
+    padding: 7px 10px;
+    border: none;
+    border-radius: 6px;
+    text-align: center;
+    font-family: cursive;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 4px 5px 16px 0px rgb(0 0 0 / 73%);
+}
+
+button[type = submit]:active {
+    background-color: #99c3ff;
+    color: #b8ffcf;
+}
+
+button[type = submit]:hover {
+    background-color: #001850;
+    color: #99bcf9;
+}
+
+input[type=datetime-local] {
+    cursor: text;
+}
+
+.selectDownloadType {
+    font-family: 'Times New Roman';
+    color: black;
+    background-color: aliceblue;
+    height: 30px;
+    border-radius: 8px;
+    align-self: center;
+    margin: 10px;
+    padding: 5px;
+    font-size: medium;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    width: fit-content;
+}
+
+.error {
+    color: #ff8181;
+    font-weight: 700;
+    font-size: large;
+    margin-top: 10px;
+}

@@ -2,12 +2,12 @@ let satName = "Choose satellite";
 let newestTime = 0;
 let oldestTime = 0;
 let isLoading = false;
-const TWO_HOURS = 2 * 60 * 60 * 1000; //in milisecond.
+const TWO_HOURS = 2 * 60 * 60 * 1000; //in millisecond.
 
 /**
  * onchange function that when we change a satellite it will ask for the most current data of this sat.
- * also change the global varibles accordingly, and open and close the option to download as excel.
- * @param {string} choice - which sat or deafult
+ * also change the global variables accordingly, and open and close the option to download as excel.
+ * @param {string} choice - which sat or default
  * @returns null
  */
 async function ChooseSat(choice) {
@@ -16,7 +16,7 @@ async function ChooseSat(choice) {
     choice = choice.value;
     let placeHolder = document.getElementById("packets"); //where at the end the packets will go to
     let download = document.getElementById("openDownload"); //for the option to download
-    if (choice == "Choose satellite") { //if none of the satellites are choosen
+    if (choice == "Choose satellite") { //if none of the satellites are chosen
         placeHolder.innerHTML = "";
         download.innerHTML = "";
         return 0;
@@ -34,7 +34,7 @@ async function ChooseSat(choice) {
         oldestTime = data.leastResent;
         placeHolder.innerHTML = data.data; //place the packets in place
         //add the option for download
-        download.innerHTML = `<button class="popupButton" onclick="openPopup()"></button><div class="popup" id="popup"><div class="closeBtn" onclick="closePopup()">&times;</div><div><div id="title" class="title">Download data for ${satName}</div><p>Choose type of download:<select id="chooseDownload" class="item selectDownloadType" onchange="downloadType(this)"><option value="StartToEndTime">Start to End Time</option><option value="StartTime">Start Time</option><option value="Limit">Limit</option><option value="All"> All </option></select></p><div id="types"><p>Enter start date: <input type="datetime-local" id="start-date" name="start-date" step="1" /></p><p>Enter end date: <input type="datetime-local" id="end-date" name="end-date" step="1" /><br /></p></div><button type="submit" onclick="sendDownloadRequest()">download</button><div class="error" id="error"></div></div></div>`;
+        download.innerHTML = `<button class="popupButton" onclick="OpenPopup()"></button><div class="popup" id="popup"><div class="closeBtn" onclick="ClosePopup()">&times;</div><div><div id="title" class="title">Download data for ${satName}</div><p>Choose type of download:<select id="chooseDownload" class="item selectDownloadType" onchange="DownloadType(this)"><option value="StartToEndTime">Start to End Time</option><option value="StartTime">Start Time</option><option value="Limit">Limit</option><option value="All"> All </option></select></p><div id="types"><p>Enter start date: <input type="datetime-local" id="start-date" name="start-date" step="1" /></p><p>Enter end date: <input type="datetime-local" id="end-date" name="end-date" step="1" /><br /></p></div><button type="submit" onclick="SendDownloadRequest()">download</button><div class="error" id="error"></div></div></div>`;
     }
     catch (error) {
         console.error('Error fetching data: ', error, message);
@@ -46,7 +46,7 @@ async function ChooseSat(choice) {
  * according to choice add the correct filter.
  * @param {string} choice - choice of which download filter to use.
  */
-function downloadType(choice) {
+function DownloadType(choice) {
     choice = choice.value;
     let placeHolder = document.getElementById("types");
     switch (choice) {
@@ -70,7 +70,7 @@ function downloadType(choice) {
  * @param {string} element
  * @returns true on empty false on full.
  */
-function checkNull(element) {
+function CheckNull(element) {
     if (element == "") { return true; }
     return false;
 }
@@ -78,14 +78,14 @@ function checkNull(element) {
 /**
  * both open and close but add to the button. (close just in case they don't want to go up in the website).
  */
-function openPopup() {
+function OpenPopup() {
     let popup = document.getElementById("popup");
     popup.classList.toggle("open-popup"); //if have remove else add.
 }
 /**
  * close the popup. (for the x button)
  */
-function closePopup() {
+function ClosePopup() {
     let popup = document.getElementById("popup");
     popup.classList.remove("open-popup");    
 }
@@ -94,7 +94,7 @@ function closePopup() {
  * check if the form is valid and if not write an error msg.
  * @returns false on error, true otherwise.
  */
-function checkForm() {
+function CheckForm() {
     const choice = document.getElementById("chooseDownload").value;
     let errorPlace = document.getElementById("error");
     errorPlace.innerHTML = "";
@@ -102,7 +102,7 @@ function checkForm() {
         case "StartToEndTime":
             var startTime = document.getElementById("start-date").value;
             var endTime = document.getElementById("end-date").value;
-            if (checkNull(startTime) || checkNull(endTime)) {
+            if (CheckNull(startTime) || CheckNull(endTime)) {
                 errorPlace.innerHTML = "Error: don't have at least one time. Need to add";
                 return false;
             }
@@ -117,7 +117,7 @@ function checkForm() {
             break;
         case "StartTime":
             var startTime = document.getElementById("start-date").value;
-            if (checkNull(startTime)) {
+            if (CheckNull(startTime)) {
                 errorPlace.innerHTML = "Error: don't have at least start time. Need to add";
                 return false;
             }
@@ -128,7 +128,7 @@ function checkForm() {
             break;
         case "Limit":
             var limit = document.getElementById("limit").value;
-            if (checkNull(limit)){
+            if (CheckNull(limit)){
                 errorPlace.innerHTML = "Error: don't have limit. Need to add";
                 return false;
             }
@@ -143,8 +143,8 @@ function checkForm() {
  * send and get the request for download .xslx
  * @returns null
  */
-async function sendDownloadRequest() {
-    if (!checkForm()) return; //if not valid
+async function SendDownloadRequest() {
+    if (!CheckForm()) return; //if not valid
     const choice = document.getElementById("chooseDownload").value;
     let url = `/downloadData/?type=${choice}&satName=${satName}`; //the start of the url that is right to all types.
     switch (choice) {

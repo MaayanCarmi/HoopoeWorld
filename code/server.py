@@ -28,7 +28,6 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         return html, oldest, newest
 
-
     def do_GET(self):
         """
         do all the GET requests, it overwrites the function but at the end also used it.
@@ -87,6 +86,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         print(f"Changed request for: {self.path}")
         return super().do_GET()
 
+
 def https_server():
     """
     https server thread. here I create the class and the start of the https
@@ -97,7 +97,7 @@ def https_server():
 
     # SSL Setup
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile="Certificate/cert_school.pem", keyfile="Certificate/key_school.pem") #get the Certificate
+    context.load_cert_chain(certfile="Certificate/cert.pem", keyfile="Certificate/key.pem") #get the Certificate
     # Wrap the socket (to be with SSL)
     httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
     httpd.serve_forever() #run the http until we can't
