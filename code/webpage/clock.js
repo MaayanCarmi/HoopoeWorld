@@ -8,5 +8,10 @@ function myTime() {
     var time = d.toUTCString().split(' ')[4];  // Just the time part
 
     var finalTime = date + "</br>" + time + " UTC";
-    document.getElementById("clock").innerHTML = finalTime;
+    let clock = document.getElementById("clock");
+    clock.innerHTML = finalTime;
+    let width = window.innerWidth;
+    if (width < 1300) { clock.style.fontSize = `${Math.round(width / 60)}px`; }
+    else { clock.style.fontSize = `25px`; }
+
 }
