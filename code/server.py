@@ -98,7 +98,7 @@ def https_server():
 
     # SSL Setup
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    context.load_cert_chain(certfile="Certificate/cert.pem", keyfile="Certificate/key.pem") #get the Certificate
+    context.load_cert_chain(certfile="Certificate/server.crt", keyfile="Certificate/server.key") #get the Certificate
     # Wrap the socket (to be with SSL)
     httpd.socket = context.wrap_socket(httpd.socket, server_side=True)
     httpd.serve_forever() #run the http until we can't

@@ -1,10 +1,16 @@
 [req]
+default_bits = 4096
 distinguished_name = req_distinguished_name
 x509_extensions = v3_ca
 prompt = no
 
 [req_distinguished_name]
-CN = hoopoeworld.local
+CN = HoopoeWorld
+C  = IL
+ST = Israel
+O = HSL
+emailAddress = hsl.hoopoeworld@gmail.com
+
 
 [v3_ca]
 subjectKeyIdentifier = hash
@@ -17,5 +23,7 @@ subjectAltName = @alt_names
 [alt_names]
 IP.1 = 127.0.0.1
 IP.2 = 172.16.12.119 
+IP.3 = 10.100.102.13
 DNS.1 = localhost
 DNS.2 = hoopoeworld.local
+DNS.3 = maayan.hello
