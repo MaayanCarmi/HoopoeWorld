@@ -364,8 +364,12 @@ class SatNogsToSQL:
     # IMPORTANT: satNogs doesn't like when we get too much in a day, so if it's not a new sat first get the csv and decrypt it.
     # have how below. (that mean also change the newestDates)
     def __init__(self, newest_dates=None):
-        if not newest_dates: self.newest_dates = {sat: "2000-01-01T00:00:00+00:00" for sat in SATELLITES}  #if didn't get put start.
-        else: self.newest_dates = newest_dates
+        if not newest_dates: self.newest_dates = {SATELLITES[sat]["satnogs"]: "2000-01-01T00:00:00+00:00" for sat in SATELLITES}  #if didn't get put start.
+        else:
+            self.newest_dates = newest_dates
+            for sat in SATELLITES:
+                if SATELLITES[sat]["satnogs"] not in newest_dates:
+                    self.newest_dates[SATELLITES[sat]["satnogs"]] = "2000-01-01T00:00:00+00:00"
         token = '935188971e64257d0736b4f89f575791312226fb'
         self.__headers = {'Authorization': f'Token {token}'}
         self.run = True
