@@ -327,8 +327,8 @@ def decode_data_for_sql(data, json_params, setting):
             bytes_from_data = data[i: i + SIZE_IN_BYTES[param["type"]]]
             i += SIZE_IN_BYTES[param["type"]]
         else: #try to find the first "\0" after to know where it ends.
-            bytes_from_data = data[i: i + data[i:].indexof(0x00)]
-            i += data[i:].indexof(0x00)
+            bytes_from_data = data[i: i + data[i:].index(0x00)]
+            i += data[i:].index(0x00)
         if "isBigEndian" in param.keys():
             to_append = decoded_param(bytes_from_data, param["type"], param["isBigEndian"]) #if big send True or False
         else:

@@ -94,8 +94,7 @@ def https_server():
     :return: None
     """
     server_address = ('0.0.0.0', 443)
-    httpd = http.server.HTTPServer(server_address, Handler) #make it with the class above.
-
+    httpd = ThreadedHTTPServer(server_address, Handler) #make it with the class above.
     # SSL Setup
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(certfile="Certificate/server.crt", keyfile="Certificate/server.key") #get the Certificate
