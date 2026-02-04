@@ -1,5 +1,5 @@
 __author__ = 'Maayan'
-import json, threading, sqlite3, requests, math
+import json, threading, sqlite3, requests, math, os
 import time, csv, io
 from struct import unpack
 from datetime import datetime
@@ -466,30 +466,29 @@ class SatNogsToSQL:
             connection_sql.commit()
             with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
 
-    # def infinite_loop(self):
-    #     with open("../data/Tevel19.csv", newline="", encoding="utf-8") as f:
-    #         reader = csv.reader(f)
-    #         count = 0
-    #         data = {"results": []}
-    #         for row in reader:
-    #             row = row[0]
-    #             if len(data["results"]) >= 25:
-    #                 self.enter_packets(data)
-    #                 data["results"] = []
-    #             data_mini = row.split("|")[:2]
-    #             data["results"].append({"timestamp": f"{data_mini[0].replace(" ", "T")}Z", "frame": data_mini[1]})
-
+    def setup(self):
+        path = input("Enter path of csv to add (full path or relative): ")
+        while path != "exit":
+            with open(path, newline="", encoding="utf-8") as f:
+                reader = csv.reader(f)
+                count = 0
+                data = {"results": []}
+                for row in reader:
+                    row = row[0]
+                    if len(data["results"]) >= 25:
+                        self.enter_packets(data)
+                        data["results"] = []
+                    data_mini = row.split("|")[:2]
+                    data["results"].append({"timestamp": f"{data_mini[0].replace(" ", "T")}Z", "frame": data_mini[1]})
+            path = input("Enter path of csv to add (full path or relative). \nexit to stop: ")
+            #todo: check on a new computer.
 
 
 def main():
     # create_tables()
     # with open("../jsons/newestTime.json", "r") as file:
     #     packets_to_sql = SatNogsToSQL(json.load(file))
-    # packets_to_sql.infinite_loop()
-    # s = "0000000E00018D0000000000000000000000000000000000080000D6AF4100EEA34100372F42002C594100F0274100A6B341EE555A6900F0FE420000000000A0F17700B0F2340000000058000000CAF008000D000000FFFFFFFFFFFFFFFFA99FD822E3B6D72200000000D083334012E645690000FFFFFFFF023100000056028B41115F924114EDDE3D4AE40A3FC6593CC50000F0C2"
-    # print(" ".join(s[i: i + 2] for i in range(0, len(s) - 1, 2)))
-    # print(get_raw(s))
-    #check it.
+    # packets_to_sql.setup()
     pass
 
 if __name__ == "__main__":

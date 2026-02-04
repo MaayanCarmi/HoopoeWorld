@@ -22,7 +22,7 @@ def main():
         return
     subprocess.run(args="pip install requests".split(" "), check=True)
     subprocess.run(args="pip install pandas".split(" "), check=True)
-
+    subprocess.run(args="pip install openpyxl".split(" "), check=True)
 
 if __name__ == "__main__":
     main()

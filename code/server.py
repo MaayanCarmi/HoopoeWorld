@@ -76,7 +76,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 #protocol: downloadData/?type={typeOfDownload}&satName={}&limit={} or &start={}&end={} or &start={} or none.
         except Exception as e: #in case of an error send error
             print(f"error {e}")
-            self.send_response(404)
+            self.send_response(400)
             self.end_headers()
             self.wfile.write("had an error".encode())
 
