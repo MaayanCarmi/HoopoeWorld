@@ -467,29 +467,40 @@ class SatNogsToSQL:
             with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
 
     def setup(self):
-        path = input("Enter path of csv to add (full path or relative): ")
-        while path != "exit":
-            with open(path, newline="", encoding="utf-8") as f:
-                reader = csv.reader(f)
-                count = 0
-                data = {"results": []}
-                for row in reader:
-                    row = row[0]
-                    if len(data["results"]) >= 25:
-                        self.enter_packets(data)
-                        data["results"] = []
-                    data_mini = row.split("|")[:2]
-                    data["results"].append({"timestamp": f"{data_mini[0].replace(" ", "T")}Z", "frame": data_mini[1]})
-            path = input("Enter path of csv to add (full path or relative). \nexit to stop: ")
-            #todo: check on a new computer.
+        try:
+            path = input("Enter path of csv to add (full path or relative): ")
+            while path != "exit":
+                date_start = "2000-01-01T00:00:00+00:00"
+                sat_name = input("Enter satellite name according to satNOGS: ")
+                with open(path, newline="", encoding="utf-8") as f:
+                    reader = csv.reader(f)
+                    count = 0
+                    data = {"results": []}
+                    for row in reader:
+                        row = row[0]
+                        if len(data["results"]) >= 25:
+                            self.enter_packets(data)
+                            data["results"] = []
+                        data_mini = row.split("|")[:2]
+                        data["results"].append(
+                            {"timestamp": f"{data_mini[0].replace(" ", "T")}Z", "frame": data_mini[1]})
+                        if not count:
+                            date_start = f"{data_mini[0].replace(" ", "T")}+00:00"
+                            count += 1
+                self.newest_dates[sat_name] = date_start
+                connection_sql.commit()
+                path = input("Enter path of csv to add (full path or relative). \nexit to stop: ")
+        finally:
+            connection_sql.commit()
+            with open("../jsons/newestTime.json", "w") as file:
+                file.write(json.dumps(self.newest_dates))
 
 
 def main():
-    # create_tables()
-    # with open("../jsons/newestTime.json", "r") as file:
-    #     packets_to_sql = SatNogsToSQL(json.load(file))
-    # packets_to_sql.setup()
-    pass
+    create_tables()
+    with open("../jsons/newestTime.json", "r") as file:
+        packets_to_sql = SatNogsToSQL(json.load(file))
+    packets_to_sql.setup()
 
 if __name__ == "__main__":
     try:
