@@ -6,6 +6,11 @@ threads = []
 website_folder = "webpage"
 
 def set_header_type(file_name):
+    """
+    get the Content-Type for files
+    :param file_name: what is the full name (with the .)
+    :return: file type for http
+    """
     file_ending = file_name[file_name.rindex(".") + 1:]
     if file_ending == "html":
         return f"text/html; charset=utf-8"
@@ -22,7 +27,12 @@ def set_header_type(file_name):
     return "unknown"
 
 
-def get_http_get_msg(sock):
+def get_http_get_msg(sock) -> tuple:
+    """
+    get the request from the client (mostly the url)
+    :param sock: the client socket.
+    :return: (if it is a get request, path/url)
+    """
     data = b""
     while b"\r\n\r\n" not in data:
         data_to_add = sock.recv(1024)
@@ -37,6 +47,12 @@ def get_http_get_msg(sock):
 
 class Handler(threading.Thread):
     def __init__(self, path, sock, is_get):
+        """
+        get the super from thread and also params about the request.
+        :param path: what was the path (the url)
+        :param sock: client soket already wrap with ssl.
+        :param is_get: check if there is get (if not return bad format because I don't have post)
+        """
         super().__init__()
         self.path = path
         self.__sock = sock
@@ -47,13 +63,23 @@ class Handler(threading.Thread):
         self.__is_get = is_get
 
     def set_headers(self, header, data):
+        """
+        add header with info to the dict. also no length (added on send)
+        :param header: name of the header (ex. Content-Type)
+        :param data: type, info. (ex. text/html)
+        :return: none, change param from init
+        """
         if header == "Content-Length": return
         self.__header[header] = data
 
-    def headers_send(self):
+    def headers_send(self) -> str:
+        """
+        make the headers that where added in the format of http
+        :return: str, headerName: info\r\n ...
+        """
         return "\r\n".join(f"{key}: {self.__header[key]}" for key in self.__header.keys())
 
-    def create_scroll(self, top):
+    def create_scroll(self, top:bool) -> tuple:
         """
         create send for both top and bottom. create the params for the html.
         :param top: a True or False if it's a request for top or bottom.
@@ -72,6 +98,12 @@ class Handler(threading.Thread):
         return html, oldest, newest
 
     def send(self, data=b""):
+        """
+        sending the response for the request from the client.
+        header and code takes from init. Also deal with errors.
+        :param data: the data that is going to be in the body
+        :return: none
+        """
         data_to_send = b""
         if self.code == 200:
             data_to_send += f"HTTP/1.1 200 OK\r\n{self.headers_send()}\r\nContent-Length: {len(data)}\r\n\r\n".encode() + data
@@ -79,10 +111,14 @@ class Handler(threading.Thread):
             data_to_send += b"HTTP/1.1 404 Not Found"
         elif self.code == 400:
             data_to_send += b"HTTP/1.1 400 Bad Request"
-        print(f"sent >> {data_to_send[:200]}")
+        print(f"sent >> {data_to_send[:150]}")
         self.__sock.send(data_to_send)
 
     def run(self):
+        """
+        override the run of thread, but have the full client logic
+        :return: none
+        """
         print(f"Received request for: {self.path}")
         if not self.__is_get:
             self.code = 400
@@ -161,7 +197,6 @@ def https_server():
     global threads
     try:
         while True:
-            # accept() only does the TCP handshake (fast)
             cli_sock, addr = server_socket.accept()
             connstream = context.wrap_socket(cli_sock, server_side=True)
 
@@ -170,7 +205,7 @@ def https_server():
             t.start()
             threads.append(t)
 
-            # removes finished threads from our list
+            # removes finished threads from the list
             for k in threads:
                 if not k.is_alive(): k.join()
             threads = [t for t in threads if t.is_alive()]
