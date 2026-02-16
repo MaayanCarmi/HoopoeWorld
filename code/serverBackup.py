@@ -133,7 +133,7 @@ class Handler(threading.Thread):
                 html, oldest, newest = DDIP.make_for_html(sat_name, 0, True, 25, int(params["width"]))
 
                 self.code = 200
-                self.__con_type = "application/json"
+                self.set_headers("Content-Type", "application/json")
                 # send to json of the data back.
                 self.send(json.dumps({"mostResent":newest, "leastResent":oldest, "data":html}).encode("utf-8"))
                 return
