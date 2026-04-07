@@ -235,7 +235,6 @@ def main():
     finally:
         packets_to_sql.run = False
         https_thread.join() #close it.
-        DDIP.connection_sql.close()
         # It doesn't really matter if we have an error here. because the only way to have it's because of other error.
 
 
