@@ -437,10 +437,11 @@ class SatNogsToSQL:
 
                     data = response.json()
                     times, val = self.enter_packets(data) #get time and add to SQL
-                    print("hi") #debug
+                    print(f"hi - {norad_id["satName"]}") #debug
                     if val == "time": #if time I want to exit
                         print("time") #debug
                         self.newest_dates[norad_id["satName"]] = times
+                        with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
                         connection_sql.commit()  # save it in SQL
                         time.sleep(120) #so the website we read from won't band as. that is true for all the sleep.
                         continue
@@ -452,11 +453,13 @@ class SatNogsToSQL:
                         except ConnectionError: raise TypeError("You aren't connect to the internet or something like that.")
                         data = response.json() #do the same as before
                         val = self.enter_packets(data)
+                        print("hello")  # debug
                         if val[1] == "time":
                             print("time")
                             break
                         time.sleep(20)
                     self.newest_dates[norad_id["satName"]] = times
+                    with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
                     connection_sql.commit()  # save it in SQL
                     print("bye") #debug
                     time.sleep(120)
@@ -465,6 +468,7 @@ class SatNogsToSQL:
             #at end write the most current.
             connection_sql.commit()
             with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
+            connection_sql.close()
 
     def setup(self):
         try:
@@ -482,8 +486,7 @@ class SatNogsToSQL:
                             self.enter_packets(data)
                             data["results"] = []
                         data_mini = row.split("|")[:2]
-                        data["results"].append(
-                            {"timestamp": f"{data_mini[0].replace(" ", "T")}Z", "frame": data_mini[1]})
+                        data["results"].append({"timestamp": f"{data_mini[0].replace(" ", "T")}Z", "frame": data_mini[1]})
                         if not count:
                             date_start = f"{data_mini[0].replace(" ", "T")}+00:00"
                             count += 1
@@ -492,8 +495,9 @@ class SatNogsToSQL:
                 path = input("Enter path of csv to add (full path or relative). \nexit to stop: ")
         finally:
             connection_sql.commit()
-            with open("../jsons/newestTime.json", "w") as file:
-                file.write(json.dumps(self.newest_dates))
+            with open("../jsons/newestTime.json", "w") as file: file.write(json.dumps(self.newest_dates))
+            connection_sql.close()
+
 
 
 def main():
